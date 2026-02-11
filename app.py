@@ -1294,33 +1294,36 @@ with tab5:
         </div>
         """, unsafe_allow_html=True)
         
-        # 가운데 정렬을 위한 CSS 적용
+        # 라디오 버튼과 라벨을 함께 가운데 정렬
         st.markdown("""
         <style>
-        .q7-score-container {
+        div[data-testid="stHorizontalBlock"] > div:has(div[data-testid="stRadio"]) {
             display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.5rem 0;
         }
         </style>
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div style="display: flex; justify-content: center; align-items: center; gap: 2rem; margin: 0.5rem 0 1rem 0;">
+        <div style="text-align: center; margin: 0.8rem 0;">
             <span style="color: #666; font-size: 0.9rem; font-weight: 600;">매우 그렇지 않다</span>
-            <span style="color: #666; font-size: 0.9rem;">←</span>
-            <span style="color: #2ecc71; font-weight: 700; font-size: 1rem;">1 &nbsp; 2 &nbsp; 3 &nbsp; 4 &nbsp; 5</span>
-            <span style="color: #666; font-size: 0.9rem;">→</span>
+            <span style="color: #888; font-size: 0.9rem; margin: 0 0.5rem;">←</span>
+            <span style="color: #2ecc71; font-weight: 700; font-size: 1rem; letter-spacing: 0.3rem;">1  2  3  4  5</span>
+            <span style="color: #888; font-size: 0.9rem; margin: 0 0.5rem;">→</span>
             <span style="color: #666; font-size: 0.9rem; font-weight: 600;">매우 그렇다</span>
         </div>
         """, unsafe_allow_html=True)
         
-        # 라디오 버튼 가운데 정렬
-        q7_spacer1, q7_radio_col, q7_spacer2 = st.columns([1, 2, 1])
-        with q7_radio_col:
-            q7_score = st.radio("Q7점수", options=[1, 2, 3, 4, 5], horizontal=True, label_visibility="collapsed", index=2)
+        # 라디오 버튼 가운데 정렬 (CSS로 강제)
+        st.markdown("""
+        <style>
+        [data-testid="stForm"] [data-testid="stRadio"] > div {
+            justify-content: center !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        q7_score = st.radio("Q7점수", options=[1, 2, 3, 4, 5], horizontal=True, label_visibility="collapsed", index=2)
         
         # Q8: 구매 의향
         st.markdown("""

@@ -1045,129 +1045,135 @@ with tab3:
         """, unsafe_allow_html=True)
         
         # ============================================================
-        # 추가 분석 2: 고객 세그멘테이션 (K-Means Clustering)
+        # 추가 분석 2: 고객 세그멘테이션 (규칙 기반)
         # ============================================================
         st.markdown("---")
-        st.markdown("### 🎯 고객 세그멘테이션 (K-Means Clustering)")
+        st.markdown("### 🎯 고객 세그멘테이션 분석")
         st.markdown("""
         <div class="insight-box">
         <strong>💡 고객 세그멘테이션이란?</strong><br>
-        비슷한 특성을 가진 고객들을 그룹으로 묶어 <strong>핵심 타겟 고객 프로필</strong>을 도출합니다.<br>
-        K-Means 알고리즘을 사용하여 자동으로 고객 군집을 형성합니다.
+        제품 컨셉에 맞는 <strong>핵심 타겟 고객 프로필</strong>을 정의하고, 각 세그먼트별 구매 의향을 비교 분석합니다.<br>
+        데이&나이트 듀얼 샴푸의 타겟 고객 기준으로 세그먼트를 구분합니다.
         </div>
         """, unsafe_allow_html=True)
         
-        from sklearn.cluster import KMeans
-        from sklearn.preprocessing import StandardScaler
+        # 규칙 기반 세그멘테이션
+        seg_df = df.copy()
         
-        # 클러스터링용 데이터 준비
-        cluster_df = df.copy()
-        cluster_df['성별_encoded'] = (cluster_df['성별'] == '남성').astype(int)
-        cluster_df['연령대_encoded'] = cluster_df['연령대'].map({'10대': 1, '20대': 2, '30대': 3, '40대': 4, '50대 이상': 5})
-        cluster_df['하루2번_encoded'] = cluster_df['하루2번샴푸'].astype(int)
+        # 세그먼트 정의
+        # 핵심 타겟: 20-30대 남성 + 하루 2번 샴푸
+        # 잠재 타겟: 위 조건 중 일부 충족 (20-30대 남성 OR 하루 2번 샴푸)
+        # 비타겟: 여성 + 하루 1번 샴푸
         
-        # 클러스터링에 사용할 특성
-        cluster_features = ['성별_encoded', '연령대_encoded', 'Q7_score', '하루2번_encoded', '구매의향']
-        cluster_data = cluster_df[cluster_features].dropna()
+        def assign_segment(row):
+            is_male = row['성별'] == '남성'
+            is_2030 = row['연령대'] in ['20대', '30대']
+            is_twice = row['하루2번샴푸'] == True
+            is_female = row['성별'] == '여성'
+            is_once = row['하루2번샴푸'] == False
+            
+            # 핵심 타겟: 20-30대 남성 + 하루 2번 샴푸
+            if is_male and is_2030 and is_twice:
+                return '핵심 타겟'
+            # 비타겟: 여성 + 하루 1번 샴푸
+            elif is_female and is_once:
+                return '비타겟'
+            # 잠재 타겟: 그 외
+            else:
+                return '잠재 타겟'
         
-        if len(cluster_data) >= 30:
-            # 스케일링
-            scaler = StandardScaler()
-            scaled_data = scaler.fit_transform(cluster_data)
+        seg_df['세그먼트'] = seg_df.apply(assign_segment, axis=1)
+        
+        # 세그먼트별 통계
+        segment_stats = seg_df.groupby('세그먼트').agg({
+            '구매의향': ['mean', 'count'],
+            'Q7_score': 'mean'
+        }).round(3)
+        segment_stats.columns = ['구매의향률', '인원수', '두피변화체감도']
+        
+        # 순서 지정
+        segment_order = ['핵심 타겟', '잠재 타겟', '비타겟']
+        segment_stats = segment_stats.reindex(segment_order)
+        
+        # 시각화
+        cluster_col1, cluster_col2 = st.columns([1.2, 1])
+        
+        with cluster_col1:
+            fig_segment = go.Figure()
             
-            # K-Means 클러스터링 (3개 그룹)
-            kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
-            cluster_data['Cluster'] = kmeans.fit_predict(scaled_data)
+            colors_segment = {'핵심 타겟': '#2ecc71', '잠재 타겟': '#3498db', '비타겟': '#e74c3c'}
             
-            # 각 클러스터별 특성 분석
-            cluster_summary = cluster_data.groupby('Cluster').agg({
-                '성별_encoded': 'mean',
-                '연령대_encoded': 'mean',
-                'Q7_score': 'mean',
-                '하루2번_encoded': 'mean',
-                '구매의향': ['mean', 'count']
-            }).round(2)
-            
-            cluster_summary.columns = ['남성비율', '평균연령대', '두피변화체감도', '하루2번비율', '구매의향률', '인원수']
-            cluster_summary = cluster_summary.sort_values('구매의향률', ascending=False)
-            
-            # 클러스터 시각화
-            cluster_col1, cluster_col2 = st.columns([1.2, 1])
-            
-            with cluster_col1:
-                # 클러스터별 구매의향 비교 차트
-                fig_cluster = go.Figure()
-                
-                colors_cluster = ['#2ecc71', '#3498db', '#e74c3c']
-                labels_cluster = ['핵심 타겟', '잠재 타겟', '비타겟']
-                
-                for idx, (cluster_idx, row) in enumerate(cluster_summary.iterrows()):
-                    fig_cluster.add_trace(go.Bar(
-                        name=f'{labels_cluster[idx]} (n={int(row["인원수"])})',
-                        x=[labels_cluster[idx]],
+            for seg_name in segment_order:
+                if seg_name in segment_stats.index:
+                    row = segment_stats.loc[seg_name]
+                    fig_segment.add_trace(go.Bar(
+                        name=seg_name,
+                        x=[seg_name],
                         y=[row['구매의향률'] * 100],
-                        marker_color=colors_cluster[idx],
+                        marker_color=colors_segment[seg_name],
                         text=f"{row['구매의향률']*100:.1f}%",
                         textposition='outside',
                         textfont=dict(size=14, family=plotly_font)
                     ))
-                
-                fig_cluster.update_layout(
-                    font=dict(family=plotly_font, size=13),
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    yaxis_title="구매 의향률 (%)",
-                    showlegend=False,
-                    height=350,
-                    margin=dict(l=60, r=40, t=40, b=60),
-                    yaxis=dict(range=[0, 110])
-                )
-                st.plotly_chart(fig_cluster, use_container_width=True)
             
-            with cluster_col2:
-                st.markdown("#### 📋 세그먼트별 프로필")
-                
-                for idx, (cluster_idx, row) in enumerate(cluster_summary.iterrows()):
-                    gender_text = "남성 중심" if row['남성비율'] > 0.6 else ("여성 중심" if row['남성비율'] < 0.4 else "남녀 혼합")
-                    age_text = f"{int(row['평균연령대'])}0대" if row['평균연령대'] < 5 else "50대 이상"
-                    shampoo_text = "하루 2번" if row['하루2번비율'] > 0.5 else "하루 1번"
-                    
-                    border_color = colors_cluster[idx]
+            fig_segment.update_layout(
+                font=dict(family=plotly_font, size=13),
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                yaxis_title="구매 의향률 (%)",
+                showlegend=False,
+                height=350,
+                margin=dict(l=60, r=40, t=40, b=60),
+                yaxis=dict(range=[0, 110])
+            )
+            st.plotly_chart(fig_segment, use_container_width=True)
+        
+        with cluster_col2:
+            st.markdown("#### 📋 세그먼트 정의 및 결과")
+            
+            segment_definitions = {
+                '핵심 타겟': ('20-30대 남성 + 하루 2번 샴푸', '#2ecc71'),
+                '잠재 타겟': ('그 외 조건 (일부 충족)', '#3498db'),
+                '비타겟': ('여성 + 하루 1번 샴푸', '#e74c3c')
+            }
+            
+            for seg_name in segment_order:
+                if seg_name in segment_stats.index:
+                    row = segment_stats.loc[seg_name]
+                    definition, color = segment_definitions[seg_name]
                     
                     st.markdown(f"""
                     <div style="background: white; padding: 0.8rem 1rem; border-radius: 0.5rem; 
-                                border-left: 5px solid {border_color}; margin-bottom: 0.8rem;
+                                border-left: 5px solid {color}; margin-bottom: 0.8rem;
                                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <p style="font-weight: 800; color: {border_color}; margin: 0 0 0.3rem 0; font-size: 1rem;">
-                            {labels_cluster[idx]} ({int(row['인원수'])}명)
+                        <p style="font-weight: 800; color: {color}; margin: 0 0 0.3rem 0; font-size: 1rem;">
+                            {seg_name} ({int(row['인원수'])}명)
                         </p>
                         <p style="font-size: 0.85rem; color: #333; margin: 0; line-height: 1.5;">
-                            {gender_text} · {age_text} · {shampoo_text}<br>
+                            <span style="color: #666;">{definition}</span><br>
                             두피변화 체감: {row['두피변화체감도']:.1f}점 · 
-                            <b style="color: {border_color};">구매의향 {row['구매의향률']*100:.0f}%</b>
+                            <b style="color: {color};">구매의향 {row['구매의향률']*100:.1f}%</b>
                         </p>
                     </div>
                     """, unsafe_allow_html=True)
-            
-            # 핵심 타겟 인사이트
-            top_cluster = cluster_summary.iloc[0]
-            gender_insight = "남성" if top_cluster['남성비율'] > 0.6 else ("여성" if top_cluster['남성비율'] < 0.4 else "남녀 모두")
-            age_insight = f"{int(top_cluster['평균연령대'])}0대" if top_cluster['평균연령대'] < 5 else "50대 이상"
+        
+        # 핵심 인사이트
+        if '핵심 타겟' in segment_stats.index and '비타겟' in segment_stats.index:
+            core_rate = segment_stats.loc['핵심 타겟', '구매의향률'] * 100
+            non_rate = segment_stats.loc['비타겟', '구매의향률'] * 100
+            diff_rate = core_rate - non_rate
             
             st.markdown(f"""
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                         padding: 1.5rem 2rem; border-radius: 1rem; margin-top: 1rem; color: white;">
-                <p style="font-weight: 800; font-size: 1.1rem; margin: 0 0 0.5rem 0;">🎯 핵심 타겟 고객 프로필</p>
+                <p style="font-weight: 800; font-size: 1.1rem; margin: 0 0 0.5rem 0;">🎯 핵심 타겟 vs 비타겟 비교</p>
                 <p style="font-size: 1rem; margin: 0; line-height: 1.7;">
-                    <b>{gender_insight}</b> · <b>{age_insight}</b> · 
-                    두피 변화 체감도 <b>{top_cluster['두피변화체감도']:.1f}점</b> · 
-                    <b>{'하루 2번 샴푸' if top_cluster['하루2번비율'] > 0.5 else '하루 1번 샴푸'}</b><br>
-                    → 이 그룹의 구매 의향률: <b style="font-size: 1.2rem;">{top_cluster['구매의향률']*100:.0f}%</b>
+                    <b>핵심 타겟 (20-30대 남성, 하루 2번 샴푸)</b>의 구매 의향률: <b style="font-size: 1.3rem;">{core_rate:.1f}%</b><br>
+                    <b>비타겟 (여성, 하루 1번 샴푸)</b>의 구매 의향률: <b style="font-size: 1.1rem;">{non_rate:.1f}%</b><br>
+                    → 핵심 타겟이 비타겟 대비 <b style="font-size: 1.2rem; color: #FFD700;">+{diff_rate:.1f}%p</b> 높은 구매 의향!
                 </p>
             </div>
             """, unsafe_allow_html=True)
-        else:
-            st.warning("⚠️ 클러스터링을 위해 최소 30명 이상의 데이터가 필요합니다.")
         
     else:
         st.warning("⚠️ 신뢰성 있는 분석을 위해 최소 30명 이상의 데이터가 필요합니다. 필터를 조정해주세요.")

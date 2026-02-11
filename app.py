@@ -488,13 +488,38 @@ with tab2:
         # 분석 방법론 설명
         st.markdown("#### 🔬 본 분석의 신뢰성 확보 방법")
         st.markdown("""
-        | 방법 | 설명 | 목적 |
-        |------|------|------|
-        | **Train/Test 분리** | 데이터를 75% 학습용, 25% 테스트용으로 분리 | 실제 예측 성능 측정 |
-        | **교차 검증 (5-Fold CV)** | 데이터를 5등분하여 5번 반복 검증 | 결과의 안정성 확인 |
-        | **Permutation Importance** | 변수 값을 섞어서 성능 저하 측정 | 더 정확한 중요도 산출 |
-        | **클래스 균형 처리** | 구매 있다/없다 비율 보정 | 편향 없는 학습 |
-        """)
+        <table style="width: 100%; border-collapse: collapse; text-align: center;">
+            <thead>
+                <tr style="background: #f8f9fa;">
+                    <th style="padding: 12px; border: 1px solid #ddd;">방법</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">설명</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">목적</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #ddd;"><strong>Train/Test 분리</strong></td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">데이터를 75% 학습용, 25% 테스트용으로 분리</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">실제 예측 성능 측정</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #ddd;"><strong>교차 검증 (5-Fold CV)</strong></td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">데이터를 5등분하여 5번 반복 검증</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">결과의 안정성 확인</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #ddd;"><strong>Permutation Importance</strong></td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">변수 값을 섞어서 성능 저하 측정</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">더 정확한 중요도 산출</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #ddd;"><strong>클래스 균형 처리</strong></td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">구매 있다/없다 비율 보정</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">편향 없는 학습</td>
+                </tr>
+            </tbody>
+        </table>
+        """, unsafe_allow_html=True)
     
     st.markdown("""
     <div class="insight-box">
@@ -665,22 +690,105 @@ with tab2:
         
         st.markdown("---")
         
-        # Top 5 비교
+        # Top 5 비교 (카드 스타일)
         st.markdown("#### 🏆 Top 5 중요 피처 비교")
         
         top5_col1, top5_col2 = st.columns(2)
         
+        # 순위별 메달 이모지
+        medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣']
+        
         with top5_col1:
-            st.markdown("**Gini 기준 Top 5**")
             top5_gini = gini_importance_df.tail(5).iloc[::-1]
-            for i, (_, row) in enumerate(top5_gini.iterrows(), 1):
-                st.markdown(f"{i}위. **{row['피처']}** (`{row['Gini 중요도']:.4f}`)")
+            gini_items_html = ""
+            for i, (_, row) in enumerate(top5_gini.iterrows()):
+                # 1위는 강조 스타일
+                if i == 0:
+                    gini_items_html += f'''
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;
+                                display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: white; font-weight: 800; font-size: 1rem;">
+                            {medals[i]} {row['피처']}
+                        </span>
+                        <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 10px; 
+                                    border-radius: 20px; font-size: 0.85rem; font-weight: 700;">
+                            {row['Gini 중요도']:.4f}
+                        </span>
+                    </div>
+                    '''
+                else:
+                    gini_items_html += f'''
+                    <div style="background: #f8f9fa; padding: 10px 16px; border-radius: 8px; 
+                                margin-bottom: 6px; border-left: 4px solid #667eea;
+                                display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #333; font-weight: 700;">
+                            {medals[i]} {row['피처']}
+                        </span>
+                        <span style="color: #667eea; font-weight: 700; font-size: 0.9rem;">
+                            {row['Gini 중요도']:.4f}
+                        </span>
+                    </div>
+                    '''
+            
+            st.markdown(f'''
+            <div style="background: white; padding: 20px; border-radius: 12px; 
+                        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15); border: 1px solid #e0e0e0;">
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <span style="background: #667eea; color: white; padding: 6px 16px; 
+                                border-radius: 20px; font-weight: 800; font-size: 0.9rem;">
+                        Gini Importance
+                    </span>
+                </div>
+                {gini_items_html}
+            </div>
+            ''', unsafe_allow_html=True)
         
         with top5_col2:
-            st.markdown("**Permutation 기준 Top 5**")
             top5_perm = perm_importance_df.tail(5).iloc[::-1]
-            for i, (_, row) in enumerate(top5_perm.iterrows(), 1):
-                st.markdown(f"{i}위. **{row['피처']}** (`{row['Permutation 중요도']:.4f}`)")
+            perm_items_html = ""
+            for i, (_, row) in enumerate(top5_perm.iterrows()):
+                # 1위는 강조 스타일
+                if i == 0:
+                    perm_items_html += f'''
+                    <div style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); 
+                                padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;
+                                display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: white; font-weight: 800; font-size: 1rem;">
+                            {medals[i]} {row['피처']}
+                        </span>
+                        <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 10px; 
+                                    border-radius: 20px; font-size: 0.85rem; font-weight: 700;">
+                            {row['Permutation 중요도']:.4f}
+                        </span>
+                    </div>
+                    '''
+                else:
+                    perm_items_html += f'''
+                    <div style="background: #f8f9fa; padding: 10px 16px; border-radius: 8px; 
+                                margin-bottom: 6px; border-left: 4px solid #2ecc71;
+                                display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #333; font-weight: 700;">
+                            {medals[i]} {row['피처']}
+                        </span>
+                        <span style="color: #2ecc71; font-weight: 700; font-size: 0.9rem;">
+                            {row['Permutation 중요도']:.4f}
+                        </span>
+                    </div>
+                    '''
+            
+            st.markdown(f'''
+            <div style="background: white; padding: 20px; border-radius: 12px; 
+                        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.15); border: 1px solid #e0e0e0;">
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <span style="background: #2ecc71; color: white; padding: 6px 16px; 
+                                border-radius: 20px; font-weight: 800; font-size: 0.9rem;">
+                        Permutation Importance
+                    </span>
+                </div>
+                {perm_items_html}
+            </div>
+            ''', unsafe_allow_html=True)
         
         # 핵심 인사이트 - 동적으로 생성
         top_feature_gini = gini_importance_df.iloc[-1]['피처']

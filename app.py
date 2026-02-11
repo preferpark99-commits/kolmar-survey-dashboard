@@ -443,97 +443,16 @@ with tab2:
         </div>
         """, unsafe_allow_html=True)
         
-        # 작동 원리 시각화
+        # 작동 원리 시각화 (이미지 사용)
         st.markdown("#### 🔄 작동 원리")
         
-        col_exp1, col_exp2, col_exp3 = st.columns([1, 2, 1])
+        col_exp1, col_exp2, col_exp3 = st.columns([1, 3, 1])
         with col_exp2:
-            # Plotly로 작동 원리 다이어그램 생성
-            fig_explain = go.Figure()
-            
-            # 데이터 노드
-            fig_explain.add_trace(go.Scatter(
-                x=[0], y=[2], mode='markers+text',
-                marker=dict(size=50, color='#667eea', symbol='square'),
-                text=['📊 데이터'], textposition='middle center',
-                textfont=dict(size=11, color='white'),
-                hoverinfo='skip'
-            ))
-            
-            # 트리 노드들
-            tree_y = [2, 2, 2]
-            tree_x = [1.5, 1.5, 1.5]
-            tree_labels = ['🌲 트리 1', '🌲 트리 2', '🌲 트리 3...100']
-            tree_y_pos = [2.5, 2, 1.5]
-            
-            for i, (tx, ty, label) in enumerate(zip([1.5]*3, tree_y_pos, tree_labels)):
-                fig_explain.add_trace(go.Scatter(
-                    x=[tx], y=[ty], mode='markers+text',
-                    marker=dict(size=40, color='#2ecc71', symbol='square'),
-                    text=[label], textposition='middle center',
-                    textfont=dict(size=9, color='white'),
-                    hoverinfo='skip'
-                ))
-            
-            # 예측 노드들
-            pred_labels = ['✅ 구매', '❌ 미구매', '✅ 구매']
-            for i, (ty, label) in enumerate(zip(tree_y_pos, pred_labels)):
-                fig_explain.add_trace(go.Scatter(
-                    x=[2.8], y=[ty], mode='markers+text',
-                    marker=dict(size=35, color='#f39c12' if '✅' in label else '#e74c3c', symbol='square'),
-                    text=[label], textposition='middle center',
-                    textfont=dict(size=9, color='white'),
-                    hoverinfo='skip'
-                ))
-            
-            # 최종 결과 노드
-            fig_explain.add_trace(go.Scatter(
-                x=[4], y=[2], mode='markers+text',
-                marker=dict(size=50, color='#e74c3c', symbol='square'),
-                text=['🎯 다수결'], textposition='middle center',
-                textfont=dict(size=10, color='white'),
-                hoverinfo='skip'
-            ))
-            
-            # 화살표 (선으로 표현)
-            # 데이터 → 트리들
-            for ty in tree_y_pos:
-                fig_explain.add_trace(go.Scatter(
-                    x=[0.3, 1.2], y=[2, ty], mode='lines',
-                    line=dict(color='#aaa', width=2),
-                    hoverinfo='skip'
-                ))
-            
-            # 트리들 → 예측
-            for ty in tree_y_pos:
-                fig_explain.add_trace(go.Scatter(
-                    x=[1.8, 2.5], y=[ty, ty], mode='lines',
-                    line=dict(color='#aaa', width=2),
-                    hoverinfo='skip'
-                ))
-            
-            # 예측 → 최종
-            for ty in tree_y_pos:
-                fig_explain.add_trace(go.Scatter(
-                    x=[3.1, 3.7], y=[ty, 2], mode='lines',
-                    line=dict(color='#aaa', width=2),
-                    hoverinfo='skip'
-                ))
-            
-            fig_explain.update_layout(
-                showlegend=False,
-                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False, range=[-0.5, 4.5]),
-                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False, range=[1, 3]),
-                plot_bgcolor='rgba(0,0,0,0)',
-                paper_bgcolor='rgba(0,0,0,0)',
-                height=200,
-                margin=dict(l=0, r=0, t=10, b=10)
-            )
-            st.plotly_chart(fig_explain, use_container_width=True)
+            st.image("random_forest.png", use_container_width=True)
         
         st.markdown("""
-        <p style="text-align: center; color: #666; font-size: 0.9rem; margin-top: -10px;">
-            100개의 트리가 각각 예측 → 다수결로 최종 결정 (예: 2:1 → 구매 예측)
+        <p style="text-align: center; color: #666; font-size: 0.9rem; margin-top: 10px;">
+            여러 개의 Decision Tree가 각각 예측 → 다수결(Majority Voting)로 최종 결정
         </p>
         """, unsafe_allow_html=True)
         
@@ -580,7 +499,7 @@ with tab2:
     st.markdown("""
     <div class="insight-box">
     <strong>💡 분석 방법:</strong> Random Forest 모델을 사용하여 구매 의향에 영향을 미치는 요인을 분석합니다.<br>
-    <strong>개선된 분석:</strong> Train/Test 분리, 교차 검증, Permutation Importance를 통해 신뢰성을 확보했습니다.
+    <strong>💡 개선된 분석:</strong> Train/Test 분리, 교차 검증, Permutation Importance를 통해 신뢰성을 확보했습니다.
     </div>
     """, unsafe_allow_html=True)
     

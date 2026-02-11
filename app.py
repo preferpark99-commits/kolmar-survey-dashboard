@@ -1423,8 +1423,8 @@ with tab5:
         
         with q1_col:
             st.markdown("""
-            <div style="background: #f8f9ff; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #667eea; margin-bottom: 1rem;">
-                <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0;">
+            <div style="background: #f8f9ff; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #667eea; margin-bottom: 0.5rem; margin-right: 0.5rem;">
+                <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0; text-align: center;">
                     <span style="background: #667eea; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q1</span>
                     <span style="color: #667eea;">성별</span>을 선택해 주세요.
                 </p>
@@ -1434,8 +1434,8 @@ with tab5:
         
         with q2_col:
             st.markdown("""
-            <div style="background: #f8f9ff; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #667eea; margin-bottom: 1rem;">
-                <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0;">
+            <div style="background: #f8f9ff; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #667eea; margin-bottom: 0.5rem; margin-left: 0.5rem;">
+                <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0; text-align: center;">
                     <span style="background: #667eea; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q2</span>
                     <span style="color: #667eea;">연령대</span>를 선택해 주세요.
                 </p>

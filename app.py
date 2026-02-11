@@ -1177,10 +1177,10 @@ with tab5:
         
         with q1_col:
             st.markdown("""
-            <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin-bottom: 1rem;">
-                <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.8rem;">
-                    <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q1</span>
-                    성별을 선택해 주세요.
+            <div style="background: #f8f9ff; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #667eea; margin-bottom: 1rem;">
+                <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0;">
+                    <span style="background: #667eea; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q1</span>
+                    <span style="color: #667eea;">성별</span>을 선택해 주세요.
                 </p>
             </div>
             """, unsafe_allow_html=True)
@@ -1188,10 +1188,10 @@ with tab5:
         
         with q2_col:
             st.markdown("""
-            <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin-bottom: 1rem;">
-                <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.8rem;">
-                    <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q2</span>
-                    연령대를 선택해 주세요.
+            <div style="background: #f8f9ff; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #667eea; margin-bottom: 1rem;">
+                <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0;">
+                    <span style="background: #667eea; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q2</span>
+                    <span style="color: #667eea;">연령대</span>를 선택해 주세요.
                 </p>
             </div>
             """, unsafe_allow_html=True)
@@ -1199,10 +1199,10 @@ with tab5:
         
         # Q3: 머리 감는 시간
         st.markdown("""
-        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin-bottom: 1.5rem;">
-            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.8rem;">
-                <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q3</span>
-                평소 머리를 감는 시간대는 언제인가요?
+        <div style="background: #f8f9ff; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #667eea; margin-bottom: 1.5rem;">
+            <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0;">
+                <span style="background: #667eea; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q3</span>
+                평소 <span style="color: #667eea;">머리를 감는 시간대</span>는 언제인가요?
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1218,11 +1218,11 @@ with tab5:
         
         # Q4: 두피 고민 (체크박스 형태)
         st.markdown("""
-        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin-bottom: 1rem;">
-            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">
-                <span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q4</span>
-                현재 가장 고민되는 두피 상태는 무엇인가요? 
-                <span style="color: #e74c3c; font-size: 0.9rem;">(최대 2개 선택)</span>
+        <div style="background: #fffaf5; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #f39c12; margin-bottom: 1rem;">
+            <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0;">
+                <span style="background: #f39c12; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q4</span>
+                현재 가장 고민되는 <span style="color: #f39c12;">두피 상태</span>는 무엇인가요? 
+                <span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px;">최대 2개 선택</span>
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1240,11 +1240,11 @@ with tab5:
         
         # Q5: 샴푸 선택 이유 (체크박스 형태)
         st.markdown("""
-        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin: 1rem 0;">
-            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">
-                <span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q5</span>
-                현재 사용 중인 샴푸를 선택하게 된 가장 큰 이유는 무엇인가요? 
-                <span style="color: #667eea; font-size: 0.9rem;">(복수 선택 가능)</span>
+        <div style="background: #fffaf5; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #f39c12; margin: 1rem 0;">
+            <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0;">
+                <span style="background: #f39c12; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q5</span>
+                현재 사용 중인 <span style="color: #f39c12;">샴푸를 선택하게 된 이유</span>는 무엇인가요? 
+                <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px;">복수 선택 가능</span>
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1259,11 +1259,11 @@ with tab5:
         
         # Q6: 샴푸 아쉬운 점 (체크박스 형태)
         st.markdown("""
-        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin: 1rem 0;">
-            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">
-                <span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q6</span>
-                현재 사용 중인 샴푸에 대해 가장 아쉬운 점은 무엇인가요? 
-                <span style="color: #667eea; font-size: 0.9rem;">(복수 선택 가능)</span>
+        <div style="background: #fffaf5; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #f39c12; margin: 1rem 0;">
+            <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0;">
+                <span style="background: #f39c12; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q6</span>
+                현재 사용 중인 샴푸에 대해 <span style="color: #f39c12;">가장 아쉬운 점</span>은 무엇인가요? 
+                <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px;">복수 선택 가능</span>
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1286,33 +1286,53 @@ with tab5:
         
         # Q7: 두피 상태 차이 (라디오 버튼 1~5)
         st.markdown("""
-        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin-bottom: 1rem;">
-            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.8rem;">
-                <span style="background: #2ecc71; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q7</span>
-                하루 중 아침과 밤, 두피 상태가 다르다고 느낀 적이 있나요?
+        <div style="background: #f0fff4; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #2ecc71; margin-bottom: 1rem;">
+            <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0;">
+                <span style="background: #2ecc71; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q7</span>
+                하루 중 아침과 밤, <span style="color: #2ecc71;">두피 상태가 다르다고 느낀 적</span>이 있나요?
             </p>
         </div>
         """, unsafe_allow_html=True)
         
-        q7_label_col1, q7_radio_col, q7_label_col2 = st.columns([1.5, 4, 1.5])
-        with q7_label_col1:
-            st.markdown("<p style='text-align: right; color: #888; font-size: 0.9rem; margin-top: 8px;'>매우 그렇지 않다</p>", unsafe_allow_html=True)
+        # 가운데 정렬을 위한 CSS 적용
+        st.markdown("""
+        <style>
+        .q7-score-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 0;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div style="display: flex; justify-content: center; align-items: center; gap: 2rem; margin: 0.5rem 0 1rem 0;">
+            <span style="color: #666; font-size: 0.9rem; font-weight: 600;">매우 그렇지 않다</span>
+            <span style="color: #666; font-size: 0.9rem;">←</span>
+            <span style="color: #2ecc71; font-weight: 700; font-size: 1rem;">1 &nbsp; 2 &nbsp; 3 &nbsp; 4 &nbsp; 5</span>
+            <span style="color: #666; font-size: 0.9rem;">→</span>
+            <span style="color: #666; font-size: 0.9rem; font-weight: 600;">매우 그렇다</span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # 라디오 버튼 가운데 정렬
+        q7_spacer1, q7_radio_col, q7_spacer2 = st.columns([1, 2, 1])
         with q7_radio_col:
             q7_score = st.radio("Q7점수", options=[1, 2, 3, 4, 5], horizontal=True, label_visibility="collapsed", index=2)
-        with q7_label_col2:
-            st.markdown("<p style='text-align: left; color: #888; font-size: 0.9rem; margin-top: 8px;'>매우 그렇다</p>", unsafe_allow_html=True)
         
         # Q8: 구매 의향
         st.markdown("""
-        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin: 1rem 0;">
-            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">
-                <span style="background: #2ecc71; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q8</span>
-                만약 아침용(데이) / 밤용(나잇)으로 구분된 두피 케어 샴푸가 출시된다면, 구매 의향이 있나요?
+        <div style="background: #f0fff4; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #2ecc71; margin: 1rem 0;">
+            <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0.8rem;">
+                <span style="background: #2ecc71; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q8</span>
+                만약 <span style="color: #2ecc71;">아침용(데이) / 밤용(나잇)</span>으로 구분된 두피 케어 샴푸가 출시된다면, <span style="color: #2ecc71;">구매 의향</span>이 있나요?
             </p>
-            <div style="background: #f8f9fa; padding: 0.8rem 1rem; border-radius: 0.5rem; margin-top: 0.5rem; font-size: 0.9rem; color: #555;">
-                <strong>*참고:</strong><br>
-                ☀️ 아침용(데이): 저자극, 순한 성분으로 가볍게 유분기만 제거<br>
-                🌙 밤용(나잇): 세정력, 보습력, 탈모 완화↑
+            <div style="background: #e8f5e9; padding: 0.8rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; color: #333; border: 1px solid #c8e6c9;">
+                <strong style="color: #2ecc71;">*참고:</strong><br>
+                ☀️ <strong>아침용(데이)</strong>: 저자극, 순한 성분으로 가볍게 유분기만 제거<br>
+                🌙 <strong>밤용(나잇)</strong>: 세정력, 보습력, 탈모 완화↑
             </div>
         </div>
         """, unsafe_allow_html=True)

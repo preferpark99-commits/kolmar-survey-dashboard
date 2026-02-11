@@ -1002,88 +1002,99 @@ with tab2:
     """, unsafe_allow_html=True)
     
     st.markdown("---")
-    st.markdown("#### 두피 고민별 구매 의향")
+    st.markdown("#### 📊 응답자 두피 고민 순위")
     
+    # 두피 고민별 응답자 수 집계
     concerns = ['탈모', '유분 과다', '두피 열감', '건조함', '가려움', '민감성']
     concern_data = []
     
     for concern in concerns:
-        concern_temp_df = df[df['두피고민'].str.contains(concern, na=False)]
-        if len(concern_temp_df) >= 5:
+        concern_count = df['두피고민'].str.contains(concern, na=False).sum()
+        if concern_count > 0:
             concern_data.append({
                 '두피 고민': concern,
-                '구매의향_pct': concern_temp_df['구매의향'].mean() * 100,
-                '응답자수': len(concern_temp_df)
+                '응답자수': concern_count,
+                '비율': concern_count / len(df) * 100
             })
     
-    concern_result_df = pd.DataFrame(concern_data).sort_values('구매의향_pct', ascending=True)
+    concern_result_df = pd.DataFrame(concern_data).sort_values('응답자수', ascending=True)
     
-    fig_concern = px.bar(
-        concern_result_df,
-        y='두피 고민',
-        x='구매의향_pct',
+    # 순위 색상 지정 (1위부터 그라데이션)
+    n_concerns = len(concern_result_df)
+    colors = ['#FFB74D', '#FFA726', '#FF9800', '#FB8C00', '#F57C00', '#EF6C00'][:n_concerns][::-1]
+    
+    fig_concern = go.Figure()
+    
+    fig_concern.add_trace(go.Bar(
+        y=concern_result_df['두피 고민'],
+        x=concern_result_df['응답자수'],
         orientation='h',
-        color='구매의향_pct',
-        color_continuous_scale='Oranges',
-        text=concern_result_df.apply(lambda x: f"{x['구매의향_pct']:.0f}% (n={int(x['응답자수'])})", axis=1)
-    )
-    fig_concern.update_traces(textposition='outside', textfont=dict(size=11))
+        marker=dict(
+            color=colors,
+            line=dict(color='#E65100', width=1)
+        ),
+        text=concern_result_df.apply(lambda x: f"<b>{int(x['응답자수'])}명</b> ({x['비율']:.1f}%)", axis=1),
+        textposition='outside',
+        textfont=dict(size=13, family=plotly_font),
+        hovertemplate='<b>%{y}</b><br>응답자: %{x}명<extra></extra>'
+    ))
+    
     fig_concern.update_layout(
         font=dict(family=plotly_font, size=13),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        xaxis_title="구매 의향 비율 (%)",
+        xaxis_title="응답자 수 (명)",
         yaxis_title="",
         showlegend=False,
-        coloraxis_showscale=False,
-        height=400,
-        margin=dict(l=100, r=120, t=40, b=60),
-        xaxis=dict(range=[0, 100]),
+        height=380,
+        margin=dict(l=100, r=100, t=30, b=50),
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(0,0,0,0.1)',
+            zeroline=False
+        ),
+        yaxis=dict(
+            showgrid=False
+        )
     )
     st.plotly_chart(fig_concern, use_container_width=True)
     
-    # 두피 고민별 구매 의향 해석 박스
-    # 상위 2개, 하위 2개 고민 추출
-    top_concerns = concern_result_df.tail(2).iloc[::-1]
-    bottom_concerns = concern_result_df.head(2)
-    
-    top1_concern = top_concerns.iloc[0]['두피 고민']
-    top1_pct = top_concerns.iloc[0]['구매의향_pct']
-    top2_concern = top_concerns.iloc[1]['두피 고민']
-    top2_pct = top_concerns.iloc[1]['구매의향_pct']
+    # 두피 고민 순위 해석 박스
+    top_concerns = concern_result_df.tail(3).iloc[::-1]  # 상위 3개
+    top1 = top_concerns.iloc[0]
+    top2 = top_concerns.iloc[1]
+    top3 = top_concerns.iloc[2]
     
     concern_insight_col1, concern_insight_col2 = st.columns(2)
     
     with concern_insight_col1:
         st.markdown(f'''
-        <div style="background: #f8f9fa; border: 2px solid #667eea; 
-                    padding: 1rem 1.5rem; border-radius: 0.8rem; height: 140px;
-                    display: flex; align-items: center; gap: 1rem;">
-            <div style="background: #667eea; color: white; padding: 0.5rem 0.8rem; 
-                        border-radius: 0.5rem; font-weight: 800; font-size: 0.85rem; white-space: nowrap;">
-                💡 해석
+        <div style="background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); border: 2px solid #FF9800; 
+                    padding: 1.2rem 1.5rem; border-radius: 0.8rem; height: 160px;">
+            <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem;">
+                <span style="background: #FF9800; color: white; padding: 0.4rem 0.8rem; 
+                            border-radius: 0.5rem; font-weight: 800; font-size: 0.85rem;">🏆 TOP 3 두피 고민</span>
             </div>
-            <p style="color: #1a1a2e; font-size: 0.95rem; font-weight: 700; margin: 0; line-height: 1.6;">
-                <span style="color: #667eea; font-weight: 800;">{top1_concern}</span>, 
-                <span style="color: #667eea; font-weight: 800;">{top2_concern}</span> 고민을 가진 고객이<br>
-                데이&나이트 샴푸에 가장 높은 관심을 보입니다.
-            </p>
+            <div style="color: #1a1a2e; font-size: 1rem; font-weight: 700; line-height: 1.8;">
+                <span style="color: #E65100;">1위.</span> <b>{top1['두피 고민']}</b> - {int(top1['응답자수'])}명 ({top1['비율']:.1f}%)<br>
+                <span style="color: #F57C00;">2위.</span> <b>{top2['두피 고민']}</b> - {int(top2['응답자수'])}명 ({top2['비율']:.1f}%)<br>
+                <span style="color: #FF9800;">3위.</span> <b>{top3['두피 고민']}</b> - {int(top3['응답자수'])}명 ({top3['비율']:.1f}%)
+            </div>
         </div>
         ''', unsafe_allow_html=True)
     
     with concern_insight_col2:
         st.markdown(f'''
-        <div style="background: #f8f9fa; border: 2px solid #667eea; 
-                    padding: 1rem 1.5rem; border-radius: 0.8rem; height: 140px;
-                    display: flex; align-items: center; gap: 1rem;">
-            <div style="background: #667eea; color: white; padding: 0.5rem 0.8rem; 
-                        border-radius: 0.5rem; font-weight: 800; font-size: 0.85rem; white-space: nowrap;">
-                💡 제품 전략
+        <div style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border: 2px solid #2196F3; 
+                    padding: 1.2rem 1.5rem; border-radius: 0.8rem; height: 160px;">
+            <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem;">
+                <span style="background: #2196F3; color: white; padding: 0.4rem 0.8rem; 
+                            border-radius: 0.5rem; font-weight: 800; font-size: 0.85rem;">💡 인사이트</span>
             </div>
-            <div style="color: #1a1a2e; font-size: 0.9rem; font-weight: 700; margin: 0; line-height: 1.6;">
-                • {top1_concern} 고민: <span style="color: #667eea; font-weight: 800;">{top1_pct:.0f}%</span> 구매 의향<br>
-                • {top2_concern} 고민: <span style="color: #667eea; font-weight: 800;">{top2_pct:.0f}%</span> 구매 의향<br>
-                → <span style="color: #e74c3c; font-weight: 800;">나이트 샴푸에 해당 기능 강조!</span>
+            <div style="color: #1a1a2e; font-size: 0.95rem; font-weight: 700; line-height: 1.7;">
+                응답자의 <span style="color: #1565C0; font-weight: 800;">{top1['비율']:.0f}%</span>가 
+                <span style="color: #1565C0; font-weight: 800;">{top1['두피 고민']}</span> 고민을 가지고 있음<br>
+                → <span style="color: #D32F2F; font-weight: 800;">나이트 샴푸에 {top1['두피 고민']} 케어 기능 필수!</span>
             </div>
         </div>
         ''', unsafe_allow_html=True)

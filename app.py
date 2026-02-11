@@ -366,20 +366,25 @@ with tab1:
     with col2:
         st.markdown("### 📅 연령대 분포")
         age_counts = filtered_df['연령대'].value_counts().sort_index()
+        age_total = age_counts.sum()
+        age_pct = (age_counts / age_total * 100).round(1)
         # 연령대별 연속적인 색상 (밝은 → 진한 그라데이션)
         age_colors = ['#A8E6CF', '#7BD3EA', '#5B9BD5', '#3A6EA5', '#1E3A5F']
         fig_age = px.bar(
             x=age_counts.index,
             y=age_counts.values,
             color=age_counts.index,
-            color_discrete_sequence=age_colors
+            color_discrete_sequence=age_colors,
+            text=[f"{v}명<br>({p}%)" for v, p in zip(age_counts.values, age_pct.values)]
         )
+        fig_age.update_traces(textposition='outside', textfont=dict(size=11))
         fig_age.update_layout(
             **chart_layout,
             xaxis_title="연령대",
             yaxis_title="응답자 수",
             showlegend=False,
-            height=350
+            height=350,
+            yaxis=dict(range=[0, age_counts.max() * 1.25])
         )
         st.plotly_chart(fig_age, use_container_width=True)
     
@@ -388,6 +393,8 @@ with tab1:
     with col3:
         st.markdown("### 🕐 머리 감는 시간대")
         time_counts = filtered_df['머리감는시간'].value_counts()
+        time_total = time_counts.sum()
+        time_pct = (time_counts / time_total * 100).round(1)
         # 시간대별 색상 매핑 (아침: 노란색, 저녁: 보라색, 아침&저녁: 초록색)
         time_color_map = {
             '아침(하루 1번)': '#FFD93D',      # 노란색 (아침 햇살)
@@ -399,14 +406,17 @@ with tab1:
             x=time_counts.values,
             orientation='h',
             color=time_counts.index,
-            color_discrete_map=time_color_map
+            color_discrete_map=time_color_map,
+            text=[f"{v}명 ({p}%)" for v, p in zip(time_counts.values, time_pct.values)]
         )
+        fig_time.update_traces(textposition='outside', textfont=dict(size=11))
         fig_time.update_layout(
             **chart_layout,
             xaxis_title="응답자 수",
             yaxis_title="",
             showlegend=False,
-            height=350
+            height=350,
+            xaxis=dict(range=[0, time_counts.max() * 1.35])
         )
         st.plotly_chart(fig_time, use_container_width=True)
     

@@ -13,8 +13,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import LabelEncoder
+from sklearn.inspection import permutation_importance
+from sklearn.metrics import accuracy_score, roc_auc_score, classification_report
 import base64
 import os
 
@@ -423,26 +425,28 @@ with tab1:
         st.plotly_chart(fig_purchase, use_container_width=True)
 
 # ============================================================
-# Tab 2: Feature Importance
+# Tab 2: Feature Importance (개선된 버전)
 # ============================================================
 with tab2:
     st.markdown("### 🤖 구매 의향 예측 - Feature Importance 분석")
     
     st.markdown("""
     <div class="insight-box">
-    <strong>💡 분석 방법:</strong> Random Forest 모델을 사용하여 구매 의향에 영향을 미치는 요인을 분석합니다.
-    Feature Importance가 높을수록 해당 변수가 구매 의향 예측에 중요한 역할을 합니다.
+    <strong>💡 분석 방법:</strong> Random Forest 모델을 사용하여 구매 의향에 영향을 미치는 요인을 분석합니다.<br>
+    <strong>개선된 분석:</strong> Train/Test 분리, 교차 검증, Permutation Importance를 통해 신뢰성을 확보했습니다.
     </div>
     """, unsafe_allow_html=True)
     
-    # Feature Engineering
+    # Feature Engineering (개선됨)
     df_ml = filtered_df.copy()
     
-    le_gender = LabelEncoder()
-    le_age = LabelEncoder()
+    # 성별 인코딩 (남성=1, 여성=0)
+    df_ml['성별_encoded'] = (df_ml['성별'] == '남성').astype(int)
     
-    df_ml['성별_encoded'] = le_gender.fit_transform(df_ml['성별'])
-    df_ml['연령대_encoded'] = le_age.fit_transform(df_ml['연령대'])
+    # 연령대 순서형 인코딩 (수동 매핑으로 순서 보장)
+    age_mapping = {'10대': 1, '20대': 2, '30대': 3, '40대': 4, '50대 이상': 5}
+    df_ml['연령대_encoded'] = df_ml['연령대'].map(age_mapping).fillna(3)
+    
     df_ml['하루2번샴푸_encoded'] = df_ml['하루2번샴푸'].astype(int)
     
     scalp_concerns = ['두피 열감', '유분 과다', '건조함', '가려움', '탈모', '민감성']
@@ -458,47 +462,177 @@ with tab2:
     X = df_ml[feature_cols]
     y = df_ml['구매의향']
     
-    if len(filtered_df) >= 20:
-        rf_model = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
-        rf_model.fit(X, y)
+    if len(filtered_df) >= 30:  # 최소 샘플 수 증가 (Train/Test 분리를 위해)
         
-        importance_df = pd.DataFrame({
+        # ============================================================
+        # 1. Train/Test 분리
+        # ============================================================
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.25, random_state=42, stratify=y
+        )
+        
+        # ============================================================
+        # 2. 모델 학습 (클래스 불균형 처리 포함)
+        # ============================================================
+        rf_model = RandomForestClassifier(
+            n_estimators=100, 
+            max_depth=5, 
+            random_state=42,
+            class_weight='balanced'  # 클래스 불균형 처리
+        )
+        rf_model.fit(X_train, y_train)
+        
+        # ============================================================
+        # 3. 모델 성능 평가
+        # ============================================================
+        y_pred = rf_model.predict(X_test)
+        y_pred_proba = rf_model.predict_proba(X_test)[:, 1]
+        
+        accuracy = accuracy_score(y_test, y_pred)
+        try:
+            auc_score = roc_auc_score(y_test, y_pred_proba)
+        except:
+            auc_score = None
+        
+        # ============================================================
+        # 4. 교차 검증
+        # ============================================================
+        cv_scores = cross_val_score(rf_model, X, y, cv=5, scoring='accuracy')
+        
+        # ============================================================
+        # 5. Permutation Importance (더 신뢰성 있는 중요도)
+        # ============================================================
+        perm_importance = permutation_importance(
+            rf_model, X_test, y_test, n_repeats=10, random_state=42
+        )
+        
+        # Gini Importance (기존 방식)
+        gini_importance_df = pd.DataFrame({
             '피처': feature_names_kr,
-            '중요도': rf_model.feature_importances_
-        }).sort_values('중요도', ascending=True)
+            'Gini 중요도': rf_model.feature_importances_
+        }).sort_values('Gini 중요도', ascending=True)
         
-        col1, col2 = st.columns([2, 1])
+        # Permutation Importance (개선된 방식)
+        perm_importance_df = pd.DataFrame({
+            '피처': feature_names_kr,
+            'Permutation 중요도': perm_importance.importances_mean
+        }).sort_values('Permutation 중요도', ascending=True)
+        
+        # ============================================================
+        # 시각화
+        # ============================================================
+        
+        # 모델 성능 지표 표시
+        st.markdown("#### 📊 모델 성능 지표")
+        perf_col1, perf_col2, perf_col3, perf_col4 = st.columns(4)
+        
+        with perf_col1:
+            st.metric("테스트 정확도", f"{accuracy*100:.1f}%")
+        with perf_col2:
+            if auc_score:
+                st.metric("AUC Score", f"{auc_score:.3f}")
+            else:
+                st.metric("AUC Score", "N/A")
+        with perf_col3:
+            st.metric("교차검증 평균", f"{cv_scores.mean()*100:.1f}%")
+        with perf_col4:
+            st.metric("교차검증 표준편차", f"±{cv_scores.std()*100:.1f}%")
+        
+        st.markdown("---")
+        
+        # Feature Importance 비교 (Gini vs Permutation)
+        st.markdown("#### 🔬 Feature Importance 비교")
+        st.markdown("""
+        <div class="insight-box">
+        <strong>Gini Importance:</strong> 트리 분할 시 불순도 감소량 기반 (빠르지만 편향 가능)<br>
+        <strong>Permutation Importance:</strong> 피처 값을 섞었을 때 성능 저하 정도 (더 신뢰성 있음)
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
         
         with col1:
-            fig_importance = px.bar(
-                importance_df,
-                x='중요도',
+            st.markdown("##### Gini Importance")
+            fig_gini = px.bar(
+                gini_importance_df,
+                x='Gini 중요도',
                 y='피처',
                 orientation='h',
-                color='중요도',
+                color='Gini 중요도',
                 color_continuous_scale='Purples'
             )
-            fig_importance.update_layout(
-                **chart_layout,
+            fig_gini.update_layout(
+                font=dict(family=plotly_font, size=12),
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
                 xaxis_title="중요도",
                 yaxis_title="",
                 showlegend=False,
                 coloraxis_showscale=False,
-                height=500
+                height=400,
+                margin=dict(l=120, r=20, t=20, b=40)
             )
-            st.plotly_chart(fig_importance, use_container_width=True)
+            st.plotly_chart(fig_gini, use_container_width=True)
         
         with col2:
-            st.markdown("### 🏆 Top 5 중요 피처")
-            top5 = importance_df.tail(5).iloc[::-1]
-            for i, (_, row) in enumerate(top5.iterrows(), 1):
-                st.markdown(f"""
-                **{i}위. {row['피처']}**  
-                중요도: `{row['중요도']:.4f}`
-                """)
+            st.markdown("##### Permutation Importance")
+            fig_perm = px.bar(
+                perm_importance_df,
+                x='Permutation 중요도',
+                y='피처',
+                orientation='h',
+                color='Permutation 중요도',
+                color_continuous_scale='Greens'
+            )
+            fig_perm.update_layout(
+                font=dict(family=plotly_font, size=12),
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                xaxis_title="중요도",
+                yaxis_title="",
+                showlegend=False,
+                coloraxis_showscale=False,
+                height=400,
+                margin=dict(l=120, r=20, t=20, b=40)
+            )
+            st.plotly_chart(fig_perm, use_container_width=True)
         
-        # 핵심 인사이트 - 전체 너비로 아래에 배치
-        st.markdown("""
+        st.markdown("---")
+        
+        # Top 5 비교
+        st.markdown("#### 🏆 Top 5 중요 피처 비교")
+        
+        top5_col1, top5_col2 = st.columns(2)
+        
+        with top5_col1:
+            st.markdown("**Gini 기준 Top 5**")
+            top5_gini = gini_importance_df.tail(5).iloc[::-1]
+            for i, (_, row) in enumerate(top5_gini.iterrows(), 1):
+                st.markdown(f"{i}위. **{row['피처']}** (`{row['Gini 중요도']:.4f}`)")
+        
+        with top5_col2:
+            st.markdown("**Permutation 기준 Top 5**")
+            top5_perm = perm_importance_df.tail(5).iloc[::-1]
+            for i, (_, row) in enumerate(top5_perm.iterrows(), 1):
+                st.markdown(f"{i}위. **{row['피처']}** (`{row['Permutation 중요도']:.4f}`)")
+        
+        # 핵심 인사이트 - 동적으로 생성
+        top_feature_gini = gini_importance_df.iloc[-1]['피처']
+        top_feature_perm = perm_importance_df.iloc[-1]['피처']
+        
+        if top_feature_gini == top_feature_perm:
+            insight_text = f"""
+            두 방법 모두에서 <span style="color: #667eea; font-weight: 800;">{top_feature_gini}</span>가 
+            가장 중요한 변수로 나타났습니다. → <span style="color: #e74c3c; font-weight: 800;">높은 신뢰도!</span>
+            """
+        else:
+            insight_text = f"""
+            Gini: <span style="color: #667eea; font-weight: 800;">{top_feature_gini}</span> / 
+            Permutation: <span style="color: #2ecc71; font-weight: 800;">{top_feature_perm}</span>이 
+            각각 1위입니다. 두 결과를 종합적으로 해석하세요.
+            """
+        
+        st.markdown(f"""
         <div style="background: #f8f9fa; border: 2px solid #667eea; 
                     padding: 1.2rem 1.8rem; border-radius: 0.8rem; margin-top: 1.5rem;
                     display: flex; align-items: center; gap: 1rem;">
@@ -507,13 +641,27 @@ with tab2:
                 🎯 핵심 인사이트
             </div>
             <p style="color: #1a1a2e; font-size: 1rem; font-weight: 700; margin: 0; line-height: 1.5;">
-                아침/밤 두피 변화 체감도가 구매 의향에 <span style="color: #667eea; font-weight: 800;">가장 큰 영향</span>을 미칩니다. 
-                → <span style="color: #e74c3c; font-weight: 800;">제품 컨셉의 핵심 근거!</span>
+                {insight_text}
             </p>
         </div>
         """, unsafe_allow_html=True)
+        
+        # 분석 신뢰도 안내
+        st.markdown("---")
+        st.markdown("#### 📋 분석 신뢰도 체크리스트")
+        
+        checks = []
+        checks.append(("✅" if accuracy > 0.6 else "⚠️", f"테스트 정확도: {accuracy*100:.1f}% {'(양호)' if accuracy > 0.6 else '(주의 필요)'}"))
+        checks.append(("✅" if cv_scores.std() < 0.15 else "⚠️", f"교차검증 안정성: ±{cv_scores.std()*100:.1f}% {'(안정적)' if cv_scores.std() < 0.15 else '(변동 큼)'}"))
+        checks.append(("✅" if len(filtered_df) >= 50 else "⚠️", f"샘플 수: {len(filtered_df)}명 {'(충분)' if len(filtered_df) >= 50 else '(더 많으면 좋음)'}"))
+        checks.append(("✅", "Train/Test 분리: 적용됨 (25% 테스트)"))
+        checks.append(("✅", "클래스 불균형 처리: 적용됨 (class_weight='balanced')"))
+        
+        for icon, text in checks:
+            st.markdown(f"{icon} {text}")
+        
     else:
-        st.warning("⚠️ 분석을 위해 최소 20명 이상의 데이터가 필요합니다. 필터를 조정해주세요.")
+        st.warning("⚠️ 신뢰성 있는 분석을 위해 최소 30명 이상의 데이터가 필요합니다. 필터를 조정해주세요.")
 
 # ============================================================
 # Tab 3: 타겟 분석

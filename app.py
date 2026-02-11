@@ -700,95 +700,101 @@ with tab2:
         
         with top5_col1:
             top5_gini = gini_importance_df.tail(5).iloc[::-1]
-            gini_items_html = ""
+            gini_items = []
             for i, (_, row) in enumerate(top5_gini.iterrows()):
-                # 1위는 강조 스타일
-                if i == 0:
-                    gini_items_html += f'''
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                                padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;
-                                display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: white; font-weight: 800; font-size: 1rem;">
-                            {medals[i]} {row['피처']}
-                        </span>
-                        <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 10px; 
-                                    border-radius: 20px; font-size: 0.85rem; font-weight: 700;">
-                            {row['Gini 중요도']:.4f}
-                        </span>
-                    </div>
-                    '''
-                else:
-                    gini_items_html += f'''
-                    <div style="background: #f8f9fa; padding: 10px 16px; border-radius: 8px; 
-                                margin-bottom: 6px; border-left: 4px solid #667eea;
-                                display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #333; font-weight: 700;">
-                            {medals[i]} {row['피처']}
-                        </span>
-                        <span style="color: #667eea; font-weight: 700; font-size: 0.9rem;">
-                            {row['Gini 중요도']:.4f}
-                        </span>
-                    </div>
-                    '''
+                medal = medals[i]
+                feature = row['피처']
+                score = row['Gini 중요도']
+                gini_items.append((medal, feature, score, i == 0))
             
-            st.markdown(f'''
-            <div style="background: white; padding: 20px; border-radius: 12px; 
+            # Gini 카드 HTML 생성
+            gini_card_html = '''<div style="background: white; padding: 20px; border-radius: 12px; 
                         box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15); border: 1px solid #e0e0e0;">
                 <div style="text-align: center; margin-bottom: 15px;">
                     <span style="background: #667eea; color: white; padding: 6px 16px; 
                                 border-radius: 20px; font-weight: 800; font-size: 0.9rem;">
                         Gini Importance
                     </span>
-                </div>
-                {gini_items_html}
-            </div>
-            ''', unsafe_allow_html=True)
-        
-        with top5_col2:
-            top5_perm = perm_importance_df.tail(5).iloc[::-1]
-            perm_items_html = ""
-            for i, (_, row) in enumerate(top5_perm.iterrows()):
-                # 1위는 강조 스타일
-                if i == 0:
-                    perm_items_html += f'''
-                    <div style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); 
+                </div>'''
+            
+            for medal, feature, score, is_first in gini_items:
+                if is_first:
+                    gini_card_html += f'''
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                                 padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;
                                 display: flex; justify-content: space-between; align-items: center;">
                         <span style="color: white; font-weight: 800; font-size: 1rem;">
-                            {medals[i]} {row['피처']}
+                            {medal} {feature}
                         </span>
                         <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 10px; 
                                     border-radius: 20px; font-size: 0.85rem; font-weight: 700;">
-                            {row['Permutation 중요도']:.4f}
+                            {score:.4f}
                         </span>
-                    </div>
-                    '''
+                    </div>'''
                 else:
-                    perm_items_html += f'''
+                    gini_card_html += f'''
                     <div style="background: #f8f9fa; padding: 10px 16px; border-radius: 8px; 
-                                margin-bottom: 6px; border-left: 4px solid #2ecc71;
+                                margin-bottom: 6px; border-left: 4px solid #667eea;
                                 display: flex; justify-content: space-between; align-items: center;">
                         <span style="color: #333; font-weight: 700;">
-                            {medals[i]} {row['피처']}
+                            {medal} {feature}
                         </span>
-                        <span style="color: #2ecc71; font-weight: 700; font-size: 0.9rem;">
-                            {row['Permutation 중요도']:.4f}
+                        <span style="color: #667eea; font-weight: 700; font-size: 0.9rem;">
+                            {score:.4f}
                         </span>
-                    </div>
-                    '''
+                    </div>'''
             
-            st.markdown(f'''
-            <div style="background: white; padding: 20px; border-radius: 12px; 
+            gini_card_html += '</div>'
+            st.markdown(gini_card_html, unsafe_allow_html=True)
+        
+        with top5_col2:
+            top5_perm = perm_importance_df.tail(5).iloc[::-1]
+            perm_items = []
+            for i, (_, row) in enumerate(top5_perm.iterrows()):
+                medal = medals[i]
+                feature = row['피처']
+                score = row['Permutation 중요도']
+                perm_items.append((medal, feature, score, i == 0))
+            
+            # Permutation 카드 HTML 생성
+            perm_card_html = '''<div style="background: white; padding: 20px; border-radius: 12px; 
                         box-shadow: 0 4px 15px rgba(46, 204, 113, 0.15); border: 1px solid #e0e0e0;">
                 <div style="text-align: center; margin-bottom: 15px;">
                     <span style="background: #2ecc71; color: white; padding: 6px 16px; 
                                 border-radius: 20px; font-weight: 800; font-size: 0.9rem;">
                         Permutation Importance
                     </span>
-                </div>
-                {perm_items_html}
-            </div>
-            ''', unsafe_allow_html=True)
+                </div>'''
+            
+            for medal, feature, score, is_first in perm_items:
+                if is_first:
+                    perm_card_html += f'''
+                    <div style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); 
+                                padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;
+                                display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: white; font-weight: 800; font-size: 1rem;">
+                            {medal} {feature}
+                        </span>
+                        <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 10px; 
+                                    border-radius: 20px; font-size: 0.85rem; font-weight: 700;">
+                            {score:.4f}
+                        </span>
+                    </div>'''
+                else:
+                    perm_card_html += f'''
+                    <div style="background: #f8f9fa; padding: 10px 16px; border-radius: 8px; 
+                                margin-bottom: 6px; border-left: 4px solid #2ecc71;
+                                display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #333; font-weight: 700;">
+                            {medal} {feature}
+                        </span>
+                        <span style="color: #2ecc71; font-weight: 700; font-size: 0.9rem;">
+                            {score:.4f}
+                        </span>
+                    </div>'''
+            
+            perm_card_html += '</div>'
+            st.markdown(perm_card_html, unsafe_allow_html=True)
         
         # 핵심 인사이트 - 동적으로 생성
         top_feature_gini = gini_importance_df.iloc[-1]['피처']

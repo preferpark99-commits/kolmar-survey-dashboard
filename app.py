@@ -1019,9 +1019,12 @@ with tab2:
     
     concern_result_df = pd.DataFrame(concern_data).sort_values('응답자수', ascending=True)
     
-    # 순위 색상 지정 (1위부터 그라데이션)
+    # 순위 색상 지정 (응답자 수가 많을수록 진한 색)
+    # ascending=True로 정렬되어 있으므로, 아래(작은 값)부터 위(큰 값) 순서
+    # 색상도 연한색 → 진한색 순서로 매칭
+    color_scale = ['#FFE0B2', '#FFCC80', '#FFB74D', '#FFA726', '#FB8C00', '#E65100']
     n_concerns = len(concern_result_df)
-    colors = ['#FFB74D', '#FFA726', '#FF9800', '#FB8C00', '#F57C00', '#EF6C00'][:n_concerns][::-1]
+    colors = color_scale[:n_concerns]  # 작은 값부터 연한색
     
     fig_concern = go.Figure()
     
@@ -1035,9 +1038,12 @@ with tab2:
         ),
         text=concern_result_df.apply(lambda x: f"<b>{int(x['응답자수'])}명</b> ({x['비율']:.1f}%)", axis=1),
         textposition='outside',
-        textfont=dict(size=13, family=plotly_font),
+        textfont=dict(size=12, family=plotly_font),
         hovertemplate='<b>%{y}</b><br>응답자: %{x}명<extra></extra>'
     ))
+    
+    # x축 최대값 계산 (텍스트가 잘리지 않도록 여유 공간 확보)
+    max_value = concern_result_df['응답자수'].max()
     
     fig_concern.update_layout(
         font=dict(family=plotly_font, size=13),
@@ -1047,11 +1053,12 @@ with tab2:
         yaxis_title="",
         showlegend=False,
         height=380,
-        margin=dict(l=100, r=100, t=30, b=50),
+        margin=dict(l=100, r=150, t=30, b=50),
         xaxis=dict(
             showgrid=True,
             gridcolor='rgba(0,0,0,0.1)',
-            zeroline=False
+            zeroline=False,
+            range=[0, max_value * 1.35]  # 35% 여유 공간
         ),
         yaxis=dict(
             showgrid=False

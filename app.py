@@ -975,7 +975,7 @@ with tab2:
     
     with col1:
         st.markdown("#### 두피 변화 체감도별 구매 의향")
-        q7_purchase = df.groupby('Q7_score')['구매의향'].agg(['mean', 'count']).reset_index()
+        q7_purchase = filtered_df.groupby('Q7_score')['구매의향'].agg(['mean', 'count']).reset_index()
         q7_purchase = q7_purchase[q7_purchase['Q7_score'].between(1, 5)]
         q7_purchase['구매의향_pct'] = q7_purchase['mean'] * 100
         
@@ -998,13 +998,13 @@ with tab2:
             coloraxis_showscale=False,
             height=400,
             margin=dict(l=60, r=40, t=60, b=80),
-            yaxis=dict(range=[0, 95]),
+            yaxis=dict(range=[0, 105]),
         )
         st.plotly_chart(fig_q7, use_container_width=True)
     
     with col2:
         st.markdown("#### 머리 감는 시간대별 구매 의향")
-        time_purchase = df.groupby('머리감는시간')['구매의향'].agg(['mean', 'count']).reset_index()
+        time_purchase = filtered_df.groupby('머리감는시간')['구매의향'].agg(['mean', 'count']).reset_index()
         time_purchase['구매의향_pct'] = time_purchase['mean'] * 100
         time_purchase = time_purchase.sort_values('구매의향_pct', ascending=True)
         
@@ -1032,9 +1032,11 @@ with tab2:
         )
         st.plotly_chart(fig_time, use_container_width=True)
     
-    # 인사이트 박스 - 두 개를 나란히 배치
-    twice_rate = df[df['하루2번샴푸']]['구매의향'].mean() * 100
-    once_rate = df[~df['하루2번샴푸']]['구매의향'].mean() * 100
+    # 인사이트 박스 - 두 개를 나란히 배치 (필터 적용된 데이터 기준)
+    twice_df = filtered_df[filtered_df['하루2번샴푸']]
+    once_df = filtered_df[~filtered_df['하루2번샴푸']]
+    twice_rate = twice_df['구매의향'].mean() * 100 if len(twice_df) > 0 else 0
+    once_rate = once_df['구매의향'].mean() * 100 if len(once_df) > 0 else 0
     
     insight_col1, insight_col2 = st.columns(2)
     
@@ -1076,7 +1078,7 @@ with tab2:
     st.markdown("#### 📈 두피 변화 체감도와 구매 의향의 관계")
     
     fig_boxplot = px.box(
-        df,
+        filtered_df,
         x='Q8',
         y='Q7_score',
         color='Q8',
@@ -1095,17 +1097,20 @@ with tab2:
     )
     st.plotly_chart(fig_boxplot, use_container_width=True)
     
-    # 통계 요약
-    q7_yes_avg = df[df['Q8'] == '있다']['Q7_score'].mean()
-    q7_no_avg = df[df['Q8'] == '없다']['Q7_score'].mean()
+    # 통계 요약 (필터 적용)
+    q7_yes_avg = filtered_df[filtered_df['Q8'] == '있다']['Q7_score'].mean()
+    q7_no_avg = filtered_df[filtered_df['Q8'] == '없다']['Q7_score'].mean()
     
     box_col1, box_col2, box_col3 = st.columns(3)
     with box_col1:
-        st.metric("구매 의향 있음 - 체감도 평균", f"{q7_yes_avg:.2f}점")
+        st.metric("구매 의향 있음 - 체감도 평균", f"{q7_yes_avg:.2f}점" if not pd.isna(q7_yes_avg) else "N/A")
     with box_col2:
-        st.metric("구매 의향 없음 - 체감도 평균", f"{q7_no_avg:.2f}점")
+        st.metric("구매 의향 없음 - 체감도 평균", f"{q7_no_avg:.2f}점" if not pd.isna(q7_no_avg) else "N/A")
     with box_col3:
-        st.metric("평균 차이", f"{q7_yes_avg - q7_no_avg:+.2f}점")
+        if not pd.isna(q7_yes_avg) and not pd.isna(q7_no_avg):
+            st.metric("평균 차이", f"{q7_yes_avg - q7_no_avg:+.2f}점")
+        else:
+            st.metric("평균 차이", "N/A")
     
     st.markdown("""
     <div class="insight-box">

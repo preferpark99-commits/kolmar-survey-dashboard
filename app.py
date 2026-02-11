@@ -1145,100 +1145,183 @@ with tab4:
         """)
 
 # ============================================================
-# Tab 5: 설문조사
+# Tab 5: 설문조사 (디자인 개선)
 # ============================================================
 with tab5:
     st.markdown("### 📝 헤어·두피 케어 제품 설문조사")
     
+    # 안내 배너
     st.markdown("""
-    <div class="insight-box">
-    <strong>💡 안내:</strong> 아래 설문에 참여해주시면 분석 결과에 실시간으로 반영됩니다!<br>
-    소요 시간: 약 1분
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); 
-                padding: 1rem 1.5rem; border-radius: 0.8rem; margin-bottom: 1.5rem;">
-        <p style="color: #333; margin: 0; line-height: 1.7;">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                padding: 1.5rem 2rem; border-radius: 1rem; margin-bottom: 2rem; color: white;">
+        <p style="font-size: 1.1rem; margin: 0; line-height: 1.8;">
             안녕하세요 😊 본 설문조사는 <strong>일상 속 헤어·두피 케어 제품에 대한 소비자 수요와 사용 경험</strong>을 
-            알아보기 위해 진행됩니다. 응답해주신 내용은 설문 목적에 한해 활용되며, 모든 응답은 <strong>익명으로 처리</strong>됩니다 🔒
+            알아보기 위해 진행됩니다.<br>
+            응답해주신 내용은 설문 목적에 한해 활용되며, 모든 응답은 <strong>익명으로 처리</strong>됩니다 🔒<br>
+            <span style="opacity: 0.9;">🕒 소요 시간: 약 1분</span>
         </p>
     </div>
     """, unsafe_allow_html=True)
     
     with st.form(key="survey_form", clear_on_submit=True):
-        st.markdown("#### 📋 기본 정보")
         
-        form_col1, form_col2 = st.columns(2)
-        
-        with form_col1:
-            q1_gender = st.radio(
-                "**Q1. 성별을 선택해 주세요.**",
-                options=["남성", "여성"],
-                horizontal=True
-            )
-        
-        with form_col2:
-            q2_age = st.radio(
-                "**Q2. 연령대를 선택해 주세요.**",
-                options=["10대", "20대", "30대", "40대", "50대 이상"],
-                horizontal=True
-            )
-        
-        q3_time = st.radio(
-            "**Q3. 평소 머리를 감는 시간대는 언제인가요?**",
-            options=["아침(하루 1번)", "저녁(하루 1번)", "아침&저녁(하루 2번)"],
-            horizontal=True
-        )
-        
-        st.markdown("---")
-        st.markdown("#### 🧴 두피 고민 및 샴푸 사용")
-        
-        q4_concerns = st.multiselect(
-            "**Q4. 현재 가장 고민되는 두피 상태는 무엇인가요? (최대 2개 선택)**",
-            options=["두피 열감", "유분 과다 / 떡짐", "건조함 / 각질", "가려움", "탈모 / 모발 가늘어짐", "민감성 / 자극감", "특별한 고민 없음"],
-            max_selections=2
-        )
-        
-        q5_reasons = st.multiselect(
-            "**Q5. 현재 사용 중인 샴푸를 선택하게 된 가장 큰 이유는 무엇인가요? (복수 선택 가능)**",
-            options=["두피 케어 효과를 기대해서", "탈모 완화 기능이 있어서", "세정력이 좋아서", "향이 마음에 들어서", "가격이 합리적이어서", "브랜드 신뢰도 / 인지도"]
-        )
-        
-        q6_complaints = st.multiselect(
-            "**Q6. 현재 사용 중인 샴푸에 대해 가장 아쉬운 점은 무엇인가요? (복수 선택 가능)**",
-            options=["세정력이 부족하다", "유분이 빨리 올라온다", "향이 부담스럽다", "자극적이다", "두피 케어 효과를 느끼기 어렵다"]
-        )
-        
-        st.markdown("---")
-        st.markdown("#### 🌙☀️ 제품 관심도")
-        
-        q7_score = st.slider(
-            "**Q7. 하루 중 아침과 밤, 두피 상태가 다르다고 느낀 적이 있나요?**",
-            min_value=1,
-            max_value=5,
-            value=3,
-            help="1: 매우 그렇지 않다 ↔ 5: 매우 그렇다"
-        )
-        st.markdown("<p style='font-size: 0.85rem; color: #666;'>1: 매우 그렇지 않다 ↔ 5: 매우 그렇다</p>", unsafe_allow_html=True)
-        
-        q8_purchase = st.radio(
-            "**Q8. 만약 아침용(데이) / 밤용(나잇)으로 구분된 두피 케어 샴푸가 출시된다면, 구매 의향이 있나요?**",
-            options=["있다", "없다"],
-            horizontal=True,
-            help="아침용(데이): 저자극, 순한 성분 / 밤용(나잇): 세정력, 보습력, 탈모 완화↑"
-        )
+        # ========== Q1, Q2: 기본 정보 ==========
         st.markdown("""
-        <p style='font-size: 0.85rem; color: #666; background: #f8f9fa; padding: 10px; border-radius: 5px;'>
-        *참고:<br>
-        • 아침용(데이): 저자극, 순한 성분으로 가볍게 유분기만 제거<br>
-        • 밤용(나잇): 세정력, 보습력, 탈모 완화↑
-        </p>
+        <div style="background: #f0f4ff; padding: 1rem 1.5rem; border-radius: 0.8rem; 
+                    border-left: 5px solid #667eea; margin-bottom: 1.5rem;">
+            <h4 style="color: #667eea; margin: 0; font-size: 1.1rem;">📋 기본 정보</h4>
+        </div>
         """, unsafe_allow_html=True)
         
-        st.markdown("---")
+        q1_col, q2_col = st.columns(2)
         
+        with q1_col:
+            st.markdown("""
+            <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin-bottom: 1rem;">
+                <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.8rem;">
+                    <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q1</span>
+                    성별을 선택해 주세요.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            q1_gender = st.radio("성별", options=["남성", "여성"], horizontal=True, label_visibility="collapsed")
+        
+        with q2_col:
+            st.markdown("""
+            <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin-bottom: 1rem;">
+                <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.8rem;">
+                    <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q2</span>
+                    연령대를 선택해 주세요.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            q2_age = st.radio("연령대", options=["10대", "20대", "30대", "40대", "50대 이상"], horizontal=True, label_visibility="collapsed")
+        
+        # Q3: 머리 감는 시간
+        st.markdown("""
+        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin-bottom: 1.5rem;">
+            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.8rem;">
+                <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q3</span>
+                평소 머리를 감는 시간대는 언제인가요?
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        q3_time = st.radio("머리감는시간", options=["아침(하루 1번)", "저녁(하루 1번)", "아침&저녁(하루 2번)"], horizontal=True, label_visibility="collapsed")
+        
+        # ========== Q4, Q5, Q6: 두피 고민 및 샴푸 사용 ==========
+        st.markdown("""
+        <div style="background: #fff5f0; padding: 1rem 1.5rem; border-radius: 0.8rem; 
+                    border-left: 5px solid #f39c12; margin: 1.5rem 0;">
+            <h4 style="color: #f39c12; margin: 0; font-size: 1.1rem;">🧴 두피 고민 및 샴푸 사용</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Q4: 두피 고민 (체크박스 형태)
+        st.markdown("""
+        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin-bottom: 1rem;">
+            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">
+                <span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q4</span>
+                현재 가장 고민되는 두피 상태는 무엇인가요? 
+                <span style="color: #e74c3c; font-size: 0.9rem;">(최대 2개 선택)</span>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        q4_options = ["두피 열감", "유분 과다 / 떡짐", "건조함 / 각질", "가려움", "탈모 / 모발 가늘어짐", "민감성 / 자극감", "특별한 고민 없음"]
+        q4_cols = st.columns(4)
+        q4_concerns = []
+        for i, option in enumerate(q4_options):
+            with q4_cols[i % 4]:
+                if st.checkbox(option, key=f"q4_{i}"):
+                    q4_concerns.append(option)
+        
+        if len(q4_concerns) > 2:
+            st.warning("⚠️ 최대 2개까지만 선택 가능합니다.")
+        
+        # Q5: 샴푸 선택 이유 (체크박스 형태)
+        st.markdown("""
+        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin: 1rem 0;">
+            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">
+                <span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q5</span>
+                현재 사용 중인 샴푸를 선택하게 된 가장 큰 이유는 무엇인가요? 
+                <span style="color: #667eea; font-size: 0.9rem;">(복수 선택 가능)</span>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        q5_options = ["두피 케어 효과를 기대해서", "탈모 완화 기능이 있어서", "세정력이 좋아서", "향이 마음에 들어서", "가격이 합리적이어서", "브랜드 신뢰도 / 인지도"]
+        q5_cols = st.columns(3)
+        q5_reasons = []
+        for i, option in enumerate(q5_options):
+            with q5_cols[i % 3]:
+                if st.checkbox(option, key=f"q5_{i}"):
+                    q5_reasons.append(option)
+        
+        # Q6: 샴푸 아쉬운 점 (체크박스 형태)
+        st.markdown("""
+        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin: 1rem 0;">
+            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">
+                <span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q6</span>
+                현재 사용 중인 샴푸에 대해 가장 아쉬운 점은 무엇인가요? 
+                <span style="color: #667eea; font-size: 0.9rem;">(복수 선택 가능)</span>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        q6_options = ["세정력이 부족하다", "유분이 빨리 올라온다", "향이 부담스럽다", "자극적이다", "두피 케어 효과를 느끼기 어렵다"]
+        q6_cols = st.columns(3)
+        q6_complaints = []
+        for i, option in enumerate(q6_options):
+            with q6_cols[i % 3]:
+                if st.checkbox(option, key=f"q6_{i}"):
+                    q6_complaints.append(option)
+        
+        # ========== Q7, Q8: 제품 관심도 ==========
+        st.markdown("""
+        <div style="background: #f0fff4; padding: 1rem 1.5rem; border-radius: 0.8rem; 
+                    border-left: 5px solid #2ecc71; margin: 1.5rem 0;">
+            <h4 style="color: #2ecc71; margin: 0; font-size: 1.1rem;">🌙☀️ 제품 관심도</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Q7: 두피 상태 차이 (라디오 버튼 1~5)
+        st.markdown("""
+        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin-bottom: 1rem;">
+            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.8rem;">
+                <span style="background: #2ecc71; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q7</span>
+                하루 중 아침과 밤, 두피 상태가 다르다고 느낀 적이 있나요?
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        q7_label_col1, q7_radio_col, q7_label_col2 = st.columns([1.5, 4, 1.5])
+        with q7_label_col1:
+            st.markdown("<p style='text-align: right; color: #888; font-size: 0.9rem; margin-top: 8px;'>매우 그렇지 않다</p>", unsafe_allow_html=True)
+        with q7_radio_col:
+            q7_score = st.radio("Q7점수", options=[1, 2, 3, 4, 5], horizontal=True, label_visibility="collapsed", index=2)
+        with q7_label_col2:
+            st.markdown("<p style='text-align: left; color: #888; font-size: 0.9rem; margin-top: 8px;'>매우 그렇다</p>", unsafe_allow_html=True)
+        
+        # Q8: 구매 의향
+        st.markdown("""
+        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e0e0; margin: 1rem 0;">
+            <p style="font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">
+                <span style="background: #2ecc71; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px;">Q8</span>
+                만약 아침용(데이) / 밤용(나잇)으로 구분된 두피 케어 샴푸가 출시된다면, 구매 의향이 있나요?
+            </p>
+            <div style="background: #f8f9fa; padding: 0.8rem 1rem; border-radius: 0.5rem; margin-top: 0.5rem; font-size: 0.9rem; color: #555;">
+                <strong>*참고:</strong><br>
+                ☀️ 아침용(데이): 저자극, 순한 성분으로 가볍게 유분기만 제거<br>
+                🌙 밤용(나잇): 세정력, 보습력, 탈모 완화↑
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        q8_purchase = st.radio("구매의향", options=["있다", "없다"], horizontal=True, label_visibility="collapsed")
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # 제출 버튼
         submit_button = st.form_submit_button(
             label="📮 설문 제출하기",
             use_container_width=True,
@@ -1246,45 +1329,41 @@ with tab5:
         )
         
         if submit_button:
-            # 응답 데이터 생성
-            from datetime import datetime
-            
-            new_response = {
-                '타임스탬프': datetime.now().strftime('%Y/%m/%d %p %I:%M:%S').replace('AM', '오전').replace('PM', '오후'),
-                '성별': q1_gender,
-                '연령대': q2_age,
-                '머리감는시간': q3_time,
-                '두피고민': ', '.join(q4_concerns) if q4_concerns else '',
-                '샴푸선택이유': ', '.join(q5_reasons) if q5_reasons else '',
-                '샴푸아쉬운점': ', '.join(q6_complaints) if q6_complaints else '',
-                'Q7': str(q7_score),
-                'Q8': q8_purchase,
-                '기타1': '',
-                '기타2': ''
-            }
-            
-            # CSV 파일에 추가 저장 시도
-            try:
-                # 기존 CSV 파일 읽기
-                csv_path = '헤어·두피 케어 제품에 대한 수요 설문조사(응답) - 설문지 응답 시트1.csv'
+            # 최대 선택 개수 검증
+            if len(q4_concerns) > 2:
+                st.error("❌ Q4에서 최대 2개까지만 선택 가능합니다. 다시 선택해주세요.")
+            else:
+                # 응답 데이터 생성
+                from datetime import datetime
                 
-                # 새 응답을 DataFrame으로 변환
-                new_df = pd.DataFrame([new_response])
+                new_response = {
+                    '타임스탬프': datetime.now().strftime('%Y/%m/%d %p %I:%M:%S').replace('AM', '오전').replace('PM', '오후'),
+                    '성별': q1_gender,
+                    '연령대': q2_age,
+                    '머리감는시간': q3_time,
+                    '두피고민': ', '.join(q4_concerns) if q4_concerns else '',
+                    '샴푸선택이유': ', '.join(q5_reasons) if q5_reasons else '',
+                    '샴푸아쉬운점': ', '.join(q6_complaints) if q6_complaints else '',
+                    'Q7': str(q7_score),
+                    'Q8': q8_purchase,
+                    '기타1': '',
+                    '기타2': ''
+                }
                 
-                # 기존 파일에 추가 (header 없이)
-                new_df.to_csv(csv_path, mode='a', header=False, index=False, encoding='utf-8-sig')
-                
-                st.success("✅ 설문이 성공적으로 제출되었습니다! 감사합니다 💗")
-                st.balloons()
-                
-                # 캐시 클리어하여 새 데이터 반영
-                st.cache_data.clear()
-                st.info("🔄 페이지를 새로고침하면 새로운 응답이 분석에 반영됩니다.")
-                
-            except Exception as e:
-                # Streamlit Cloud에서는 파일 쓰기가 제한될 수 있음
-                st.warning("⚠️ 설문이 접수되었습니다! (서버 환경에서는 실시간 저장이 제한될 수 있습니다)")
-                st.info(f"📋 응답 내용: {q1_gender}, {q2_age}, {q3_time}, Q7={q7_score}, Q8={q8_purchase}")
+                # CSV 파일에 추가 저장 시도
+                try:
+                    csv_path = '헤어·두피 케어 제품에 대한 수요 설문조사(응답) - 설문지 응답 시트1.csv'
+                    new_df = pd.DataFrame([new_response])
+                    new_df.to_csv(csv_path, mode='a', header=False, index=False, encoding='utf-8-sig')
+                    
+                    st.success("✅ 설문이 성공적으로 제출되었습니다! 감사합니다 💗")
+                    st.balloons()
+                    st.cache_data.clear()
+                    st.info("🔄 페이지를 새로고침하면 새로운 응답이 분석에 반영됩니다.")
+                    
+                except Exception as e:
+                    st.warning("⚠️ 설문이 접수되었습니다! (서버 환경에서는 실시간 저장이 제한될 수 있습니다)")
+                    st.info(f"📋 응답 내용: {q1_gender}, {q2_age}, {q3_time}, Q7={q7_score}, Q8={q8_purchase}")
     
     # 감사 메시지
     st.markdown("""

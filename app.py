@@ -1419,28 +1419,30 @@ with tab5:
         </div>
         """, unsafe_allow_html=True)
         
-        q1_col, q2_col = st.columns(2)
-        
-        with q1_col:
-            st.markdown("""
-            <div style="background: #f8f9ff; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #667eea; margin-bottom: 0.5rem; margin-right: 0.5rem;">
+        # Q1, Q2를 한 줄에 좌우 정렬로 배치
+        st.markdown("""
+        <div style="display: flex; justify-content: space-between; gap: 2rem; margin-bottom: 0.5rem;">
+            <div style="flex: 1; background: #f8f9ff; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #667eea;">
                 <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0; text-align: center;">
                     <span style="background: #667eea; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q1</span>
                     <span style="color: #667eea;">성별</span>을 선택해 주세요.
                 </p>
             </div>
-            """, unsafe_allow_html=True)
-            q1_gender = st.radio("성별", options=["남성", "여성"], horizontal=True, label_visibility="collapsed")
-        
-        with q2_col:
-            st.markdown("""
-            <div style="background: #f8f9ff; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #667eea; margin-bottom: 0.5rem; margin-left: 0.5rem;">
+            <div style="flex: 1; background: #f8f9ff; padding: 1rem 1.2rem; border-radius: 0.5rem; border: 2px solid #667eea;">
                 <p style="font-size: 1.05rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0; text-align: center;">
                     <span style="background: #667eea; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 10px;">Q2</span>
                     <span style="color: #667eea;">연령대</span>를 선택해 주세요.
                 </p>
             </div>
-            """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
+        
+        q1_col, q2_col = st.columns(2)
+        
+        with q1_col:
+            q1_gender = st.radio("성별", options=["남성", "여성"], horizontal=True, label_visibility="collapsed")
+        
+        with q2_col:
             q2_age = st.radio("연령대", options=["10대", "20대", "30대", "40대", "50대 이상"], horizontal=True, label_visibility="collapsed")
         
         # Q3: 머리 감는 시간

@@ -621,30 +621,38 @@ with tab2:
         top_feature_perm = perm_importance_df.iloc[-1]['피처']
         
         if top_feature_gini == top_feature_perm:
-            insight_text = f"""
-            두 방법 모두에서 <span style="color: #667eea; font-weight: 800;">{top_feature_gini}</span>가 
-            가장 중요한 변수로 나타났습니다. → <span style="color: #e74c3c; font-weight: 800;">높은 신뢰도!</span>
-            """
-        else:
-            insight_text = f"""
-            Gini: <span style="color: #667eea; font-weight: 800;">{top_feature_gini}</span> / 
-            Permutation: <span style="color: #2ecc71; font-weight: 800;">{top_feature_perm}</span>이 
-            각각 1위입니다. 두 결과를 종합적으로 해석하세요.
-            """
-        
-        st.markdown(f"""
-        <div style="background: #f8f9fa; border: 2px solid #667eea; 
-                    padding: 1.2rem 1.8rem; border-radius: 0.8rem; margin-top: 1.5rem;
-                    display: flex; align-items: center; gap: 1rem;">
-            <div style="background: #667eea; color: white; padding: 0.6rem 1rem; 
-                        border-radius: 0.5rem; font-weight: 800; font-size: 0.9rem; white-space: nowrap;">
-                🎯 핵심 인사이트
+            insight_html = f'''
+            <div style="background: #f8f9fa; border: 2px solid #667eea; 
+                        padding: 1.2rem 1.8rem; border-radius: 0.8rem; margin-top: 1.5rem;
+                        display: flex; align-items: center; gap: 1rem;">
+                <div style="background: #667eea; color: white; padding: 0.6rem 1rem; 
+                            border-radius: 0.5rem; font-weight: 800; font-size: 0.9rem; white-space: nowrap;">
+                    🎯 핵심 인사이트
+                </div>
+                <p style="color: #1a1a2e; font-size: 1rem; font-weight: 700; margin: 0; line-height: 1.5;">
+                    두 방법 모두에서 <span style="color: #667eea; font-weight: 800;">{top_feature_gini}</span>가 
+                    가장 중요한 변수로 나타났습니다. → <span style="color: #e74c3c; font-weight: 800;">높은 신뢰도!</span>
+                </p>
             </div>
-            <p style="color: #1a1a2e; font-size: 1rem; font-weight: 700; margin: 0; line-height: 1.5;">
-                {insight_text}
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+            '''
+        else:
+            insight_html = f'''
+            <div style="background: #f8f9fa; border: 2px solid #667eea; 
+                        padding: 1.2rem 1.8rem; border-radius: 0.8rem; margin-top: 1.5rem;
+                        display: flex; align-items: center; gap: 1rem;">
+                <div style="background: #667eea; color: white; padding: 0.6rem 1rem; 
+                            border-radius: 0.5rem; font-weight: 800; font-size: 0.9rem; white-space: nowrap;">
+                    🎯 핵심 인사이트
+                </div>
+                <p style="color: #1a1a2e; font-size: 1rem; font-weight: 700; margin: 0; line-height: 1.5;">
+                    Gini: <span style="color: #667eea; font-weight: 800;">{top_feature_gini}</span> / 
+                    Permutation: <span style="color: #2ecc71; font-weight: 800;">{top_feature_perm}</span>이 
+                    각각 1위입니다. 두 결과를 종합적으로 해석하세요.
+                </p>
+            </div>
+            '''
+        
+        st.markdown(insight_html, unsafe_allow_html=True)
         
         # 분석 신뢰도 안내
         st.markdown("---")

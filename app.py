@@ -342,7 +342,7 @@ st.markdown("---")
 # ============================================================
 # 탭 구성
 # ============================================================
-tab1, tab2, tab3, tab4 = st.tabs(["📊 기본 분석", "🔬 Feature Importance", "🎯 타겟 분석", "📈 제품 컨셉 검증"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 기본 분석", "🎯 타겟 분석", "🔬 Feature Importance", "📈 제품 컨셉 검증"])
 
 # ============================================================
 # Tab 1: 기본 분석
@@ -425,9 +425,9 @@ with tab1:
         st.plotly_chart(fig_purchase, use_container_width=True)
 
 # ============================================================
-# Tab 2: Feature Importance (개선된 버전)
+# Tab 2: 타겟 분석 (순서 변경됨)
 # ============================================================
-with tab2:
+with tab3:
     st.markdown("### 🤖 구매 의향 예측 - Feature Importance 분석")
     
     # Random Forest 설명 (접을 수 있는 expander)
@@ -852,9 +852,9 @@ with tab2:
         st.warning("⚠️ 신뢰성 있는 분석을 위해 최소 30명 이상의 데이터가 필요합니다. 필터를 조정해주세요.")
 
 # ============================================================
-# Tab 3: 타겟 분석
+# Tab 3: Feature Importance (순서 변경됨)
 # ============================================================
-with tab3:
+with tab2:
     st.markdown("### 🎯 세그먼트별 구매 의향 분석")
     
     col1, col2 = st.columns(2)
@@ -963,24 +963,24 @@ with tab3:
     concern_data = []
     
     for concern in concerns:
-        concern_df = df[df['두피고민'].str.contains(concern, na=False)]
-        if len(concern_df) >= 5:
+        concern_temp_df = df[df['두피고민'].str.contains(concern, na=False)]
+        if len(concern_temp_df) >= 5:
             concern_data.append({
                 '두피 고민': concern,
-                '구매의향_pct': concern_df['구매의향'].mean() * 100,
-                '응답자수': len(concern_df)
+                '구매의향_pct': concern_temp_df['구매의향'].mean() * 100,
+                '응답자수': len(concern_temp_df)
             })
     
-    concern_df = pd.DataFrame(concern_data).sort_values('구매의향_pct', ascending=True)
+    concern_result_df = pd.DataFrame(concern_data).sort_values('구매의향_pct', ascending=True)
     
     fig_concern = px.bar(
-        concern_df,
+        concern_result_df,
         y='두피 고민',
         x='구매의향_pct',
         orientation='h',
         color='구매의향_pct',
         color_continuous_scale='Oranges',
-        text=concern_df.apply(lambda x: f"{x['구매의향_pct']:.0f}% (n={int(x['응답자수'])})", axis=1)
+        text=concern_result_df.apply(lambda x: f"{x['구매의향_pct']:.0f}% (n={int(x['응답자수'])})", axis=1)
     )
     fig_concern.update_traces(textposition='outside', textfont=dict(size=11))
     fig_concern.update_layout(
@@ -996,6 +996,52 @@ with tab3:
         xaxis=dict(range=[0, 100]),
     )
     st.plotly_chart(fig_concern, use_container_width=True)
+    
+    # 두피 고민별 구매 의향 해석 박스
+    # 상위 2개, 하위 2개 고민 추출
+    top_concerns = concern_result_df.tail(2).iloc[::-1]
+    bottom_concerns = concern_result_df.head(2)
+    
+    top1_concern = top_concerns.iloc[0]['두피 고민']
+    top1_pct = top_concerns.iloc[0]['구매의향_pct']
+    top2_concern = top_concerns.iloc[1]['두피 고민']
+    top2_pct = top_concerns.iloc[1]['구매의향_pct']
+    
+    concern_insight_col1, concern_insight_col2 = st.columns(2)
+    
+    with concern_insight_col1:
+        st.markdown(f'''
+        <div style="background: #f8f9fa; border: 2px solid #667eea; 
+                    padding: 1rem 1.5rem; border-radius: 0.8rem; height: 140px;
+                    display: flex; align-items: center; gap: 1rem;">
+            <div style="background: #667eea; color: white; padding: 0.5rem 0.8rem; 
+                        border-radius: 0.5rem; font-weight: 800; font-size: 0.85rem; white-space: nowrap;">
+                💡 해석
+            </div>
+            <p style="color: #1a1a2e; font-size: 0.95rem; font-weight: 700; margin: 0; line-height: 1.6;">
+                <span style="color: #667eea; font-weight: 800;">{top1_concern}</span>, 
+                <span style="color: #667eea; font-weight: 800;">{top2_concern}</span> 고민을 가진 고객이<br>
+                데이&나이트 샴푸에 가장 높은 관심을 보입니다.
+            </p>
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    with concern_insight_col2:
+        st.markdown(f'''
+        <div style="background: #f8f9fa; border: 2px solid #667eea; 
+                    padding: 1rem 1.5rem; border-radius: 0.8rem; height: 140px;
+                    display: flex; align-items: center; gap: 1rem;">
+            <div style="background: #667eea; color: white; padding: 0.5rem 0.8rem; 
+                        border-radius: 0.5rem; font-weight: 800; font-size: 0.85rem; white-space: nowrap;">
+                💡 제품 전략
+            </div>
+            <div style="color: #1a1a2e; font-size: 0.9rem; font-weight: 700; margin: 0; line-height: 1.6;">
+                • {top1_concern} 고민: <span style="color: #667eea; font-weight: 800;">{top1_pct:.0f}%</span> 구매 의향<br>
+                • {top2_concern} 고민: <span style="color: #667eea; font-weight: 800;">{top2_pct:.0f}%</span> 구매 의향<br>
+                → <span style="color: #e74c3c; font-weight: 800;">나이트 샴푸에 해당 기능 강조!</span>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
 
 # ============================================================
 # Tab 4: 제품 컨셉 검증

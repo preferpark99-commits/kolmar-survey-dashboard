@@ -1045,15 +1045,15 @@ with tab3:
         """, unsafe_allow_html=True)
         
         # ============================================================
-        # 추가 분석 2: 고객 세그멘테이션 (규칙 기반)
+        # 추가 분석 2: 타겟 소비자 분석 (규칙 기반)
         # ============================================================
         st.markdown("---")
-        st.markdown("### 🎯 고객 세그멘테이션 분석")
+        st.markdown("### 🎯 타겟 소비자 분석")
         st.markdown("""
         <div class="insight-box">
-        <strong>💡 고객 세그멘테이션이란?</strong><br>
-        제품 컨셉에 맞는 <strong>핵심 타겟 고객 프로필</strong>을 정의하고, 각 세그먼트별 구매 의향을 비교 분석합니다.<br>
-        데이&나이트 듀얼 샴푸의 타겟 고객 기준으로 세그먼트를 구분합니다.
+        <strong>💡 타겟 소비자 분석이란?</strong><br>
+        데이&나이트 듀얼 샴푸의 <strong>핵심 타겟 소비자</strong>를 정의하고, 타겟 여부에 따른 구매 의향 차이를 검증합니다.<br>
+        "우리 제품을 누구에게 팔아야 하는가?"에 대한 데이터 기반 답을 제시합니다.
         </div>
         """, unsafe_allow_html=True)
         
@@ -1061,9 +1061,9 @@ with tab3:
         seg_df = df.copy()
         
         # 세그먼트 정의
-        # 핵심 타겟: 20-30대 남성 + 하루 2번 샴푸
-        # 잠재 타겟: 위 조건 중 일부 충족 (20-30대 남성 OR 하루 2번 샴푸)
-        # 비타겟: 여성 + 하루 1번 샴푸
+        # 핵심 타겟: 20-30대 남성 (하루 2번 샴푸 우대)
+        # 잠재 타겟: 남성 OR 하루 2번 샴푸
+        # 비타겟: 여성 + 하루 1번 샴푸 + 두피변화 체감 낮음
         
         def assign_segment(row):
             is_male = row['성별'] == '남성'
@@ -1071,12 +1071,13 @@ with tab3:
             is_twice = row['하루2번샴푸'] == True
             is_female = row['성별'] == '여성'
             is_once = row['하루2번샴푸'] == False
+            q7_low = row['Q7_score'] <= 2 if pd.notna(row['Q7_score']) else False
             
-            # 핵심 타겟: 20-30대 남성 + 하루 2번 샴푸
-            if is_male and is_2030 and is_twice:
+            # 핵심 타겟: 20-30대 남성 (하루 2번이면 더 확실)
+            if is_male and is_2030:
                 return '핵심 타겟'
-            # 비타겟: 여성 + 하루 1번 샴푸
-            elif is_female and is_once:
+            # 비타겟: 여성 + 하루 1번 샴푸 + 두피변화 체감 낮음(1-2점)
+            elif is_female and is_once and q7_low:
                 return '비타겟'
             # 잠재 타겟: 그 외
             else:
@@ -1129,12 +1130,12 @@ with tab3:
             st.plotly_chart(fig_segment, use_container_width=True)
         
         with cluster_col2:
-            st.markdown("#### 📋 세그먼트 정의 및 결과")
+            st.markdown("#### 📋 타겟 소비자 정의")
             
             segment_definitions = {
-                '핵심 타겟': ('20-30대 남성 + 하루 2번 샴푸', '#2ecc71'),
-                '잠재 타겟': ('그 외 조건 (일부 충족)', '#3498db'),
-                '비타겟': ('여성 + 하루 1번 샴푸', '#e74c3c')
+                '핵심 타겟': ('20-30대 남성', '#2ecc71'),
+                '잠재 타겟': ('그 외 (40대 이상 남성, 하루 2번 여성 등)', '#3498db'),
+                '비타겟': ('여성 + 하루 1번 + 두피변화 무관심', '#e74c3c')
             }
             
             for seg_name in segment_order:
@@ -1166,10 +1167,10 @@ with tab3:
             st.markdown(f"""
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                         padding: 1.5rem 2rem; border-radius: 1rem; margin-top: 1rem; color: white;">
-                <p style="font-weight: 800; font-size: 1.1rem; margin: 0 0 0.5rem 0;">🎯 핵심 타겟 vs 비타겟 비교</p>
+                <p style="font-weight: 800; font-size: 1.1rem; margin: 0 0 0.5rem 0;">🎯 타겟 소비자 분석 결론</p>
                 <p style="font-size: 1rem; margin: 0; line-height: 1.7;">
-                    <b>핵심 타겟 (20-30대 남성, 하루 2번 샴푸)</b>의 구매 의향률: <b style="font-size: 1.3rem;">{core_rate:.1f}%</b><br>
-                    <b>비타겟 (여성, 하루 1번 샴푸)</b>의 구매 의향률: <b style="font-size: 1.1rem;">{non_rate:.1f}%</b><br>
+                    <b>핵심 타겟 (20-30대 남성)</b>의 구매 의향률: <b style="font-size: 1.3rem;">{core_rate:.1f}%</b><br>
+                    <b>비타겟 (여성 + 하루 1번 + 두피변화 무관심)</b>의 구매 의향률: <b style="font-size: 1.1rem;">{non_rate:.1f}%</b><br>
                     → 핵심 타겟이 비타겟 대비 <b style="font-size: 1.2rem; color: #FFD700;">+{diff_rate:.1f}%p</b> 높은 구매 의향!
                 </p>
             </div>

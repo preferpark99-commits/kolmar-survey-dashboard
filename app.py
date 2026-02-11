@@ -342,7 +342,7 @@ st.markdown("---")
 # ============================================================
 # 탭 구성
 # ============================================================
-tab1, tab2, tab3, tab4 = st.tabs(["📊 기본 분석", "🎯 타겟 분석", "🔬 Feature Importance", "📈 제품 컨셉 검증"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 기본 분석", "🎯 타겟 분석", "🔬 Feature Importance", "🧴 제품 소개"])
 
 # ============================================================
 # Tab 1: 기본 분석
@@ -957,6 +957,51 @@ with tab2:
         """, unsafe_allow_html=True)
     
     st.markdown("---")
+    
+    # 두피 변화 체감도와 구매 의향 관계 시각화 (제품 컨셉 검증에서 이동)
+    st.markdown("#### 📈 두피 변화 체감도와 구매 의향의 관계")
+    
+    fig_boxplot = px.box(
+        df,
+        x='Q8',
+        y='Q7_score',
+        color='Q8',
+        color_discrete_map={'있다': '#2ecc71', '없다': '#e74c3c'},
+        points='all'
+    )
+    fig_boxplot.update_layout(
+        font=dict(family=plotly_font, size=13),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        xaxis_title="구매 의향",
+        yaxis_title="아침/밤 두피 변화 체감도",
+        showlegend=False,
+        height=400,
+        margin=dict(l=60, r=40, t=40, b=60)
+    )
+    st.plotly_chart(fig_boxplot, use_container_width=True)
+    
+    # 통계 요약
+    q7_yes_avg = df[df['Q8'] == '있다']['Q7_score'].mean()
+    q7_no_avg = df[df['Q8'] == '없다']['Q7_score'].mean()
+    
+    box_col1, box_col2, box_col3 = st.columns(3)
+    with box_col1:
+        st.metric("구매 의향 있음 - 체감도 평균", f"{q7_yes_avg:.2f}점")
+    with box_col2:
+        st.metric("구매 의향 없음 - 체감도 평균", f"{q7_no_avg:.2f}점")
+    with box_col3:
+        st.metric("평균 차이", f"{q7_yes_avg - q7_no_avg:+.2f}점")
+    
+    st.markdown("""
+    <div class="insight-box">
+    <strong>✅ 결론:</strong><br>
+    "아침과 밤 두피 상태가 다르다고 느끼는 소비자일수록 데이&나이트 듀얼 샴푸에 대한 구매 의향이 높다"<br>
+    → <strong>제품 컨셉이 소비자 니즈와 정확히 매칭됨!</strong>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
     st.markdown("#### 두피 고민별 구매 의향")
     
     concerns = ['탈모', '유분 과다', '두피 열감', '건조함', '가려움', '민감성']
@@ -1044,10 +1089,10 @@ with tab2:
         ''', unsafe_allow_html=True)
 
 # ============================================================
-# Tab 4: 제품 컨셉 검증
+# Tab 4: 제품 소개
 # ============================================================
 with tab4:
-    st.markdown("### 🌙☀️ 데이&나이트 제품 컨셉 검증")
+    st.markdown("### 🌙☀️ 데이&나이트 듀얼 샴푸 제품 소개")
     
     col1, col2 = st.columns(2)
     
@@ -1098,48 +1143,6 @@ with tab4:
         - 유분 과다 고민: **{morning_needs}명** ({morning_needs/len(df)*100:.1f}%)
         - 유분/자극 불만: **{morning_complaints}명** ({morning_complaints/len(df)*100:.1f}%)
         """)
-    
-    st.markdown("---")
-    
-    # 두피 변화 체감도와 구매 의향 관계 시각화
-    st.markdown("### 📈 두피 변화 체감도와 구매 의향의 관계")
-    
-    fig_scatter = px.box(
-        df,
-        x='Q8',
-        y='Q7_score',
-        color='Q8',
-        color_discrete_map={'있다': '#2ecc71', '없다': '#e74c3c'},
-        points='all'
-    )
-    fig_scatter.update_layout(
-        **chart_layout,
-        xaxis_title="구매 의향",
-        yaxis_title="아침/밤 두피 변화 체감도",
-        showlegend=False,
-        height=400
-    )
-    st.plotly_chart(fig_scatter, use_container_width=True)
-    
-    # 통계 요약
-    q7_yes = df[df['Q8'] == '있다']['Q7_score'].mean()
-    q7_no = df[df['Q8'] == '없다']['Q7_score'].mean()
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("구매 의향 있음 - 체감도 평균", f"{q7_yes:.2f}점")
-    with col2:
-        st.metric("구매 의향 없음 - 체감도 평균", f"{q7_no:.2f}점")
-    with col3:
-        st.metric("평균 차이", f"{q7_yes - q7_no:+.2f}점")
-    
-    st.markdown("""
-    <div class="insight-box">
-    <strong>✅ 결론:</strong><br>
-    "아침과 밤 두피 상태가 다르다고 느끼는 소비자일수록 데이&나이트 듀얼 샴푸에 대한 구매 의향이 높다"<br>
-    → <strong>제품 컨셉이 소비자 니즈와 정확히 매칭됨!</strong>
-    </div>
-    """, unsafe_allow_html=True)
 
 # ============================================================
 # 푸터

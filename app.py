@@ -962,6 +962,213 @@ with tab3:
         for icon, text in checks:
             st.markdown(f"{icon} {text}")
         
+        # ============================================================
+        # 추가 분석 1: 통계적 유의성 검정
+        # ============================================================
+        st.markdown("---")
+        st.markdown("### 📊 통계적 유의성 검정")
+        st.markdown("""
+        <div class="insight-box">
+        <strong>💡 통계적 유의성이란?</strong><br>
+        "관찰된 차이가 우연이 아니라 실제로 의미 있는 차이인가?"를 검증합니다.<br>
+        <strong>p-value < 0.05</strong>이면 통계적으로 유의미한 차이로 판단합니다.
+        </div>
+        """, unsafe_allow_html=True)
+        
+        from scipy import stats
+        
+        stat_col1, stat_col2 = st.columns(2)
+        
+        with stat_col1:
+            st.markdown("#### 🔬 두피 변화 체감도 vs 구매 의향")
+            # T-test: 구매의향 있음/없음 그룹의 Q7 점수 비교
+            q7_yes = df[df['Q8'] == '있다']['Q7_score'].dropna()
+            q7_no = df[df['Q8'] == '없다']['Q7_score'].dropna()
+            
+            if len(q7_yes) > 5 and len(q7_no) > 5:
+                t_stat, p_value_ttest = stats.ttest_ind(q7_yes, q7_no)
+                
+                significance_ttest = "✅ 유의미함" if p_value_ttest < 0.05 else "❌ 유의미하지 않음"
+                color_ttest = "#2ecc71" if p_value_ttest < 0.05 else "#e74c3c"
+                
+                st.markdown(f"""
+                <div style="background: #f8f9fa; padding: 1.2rem; border-radius: 0.8rem; border: 2px solid {color_ttest};">
+                    <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Independent T-Test 결과</p>
+                    <table style="width: 100%; font-size: 0.95rem;">
+                        <tr><td>구매의향 있음 평균</td><td style="text-align: right;"><b>{q7_yes.mean():.2f}점</b></td></tr>
+                        <tr><td>구매의향 없음 평균</td><td style="text-align: right;"><b>{q7_no.mean():.2f}점</b></td></tr>
+                        <tr><td>t-statistic</td><td style="text-align: right;">{t_stat:.3f}</td></tr>
+                        <tr><td>p-value</td><td style="text-align: right;"><b style="color: {color_ttest};">{p_value_ttest:.4f}</b></td></tr>
+                        <tr><td>결론</td><td style="text-align: right;"><b style="color: {color_ttest};">{significance_ttest}</b></td></tr>
+                    </table>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.info("데이터가 충분하지 않습니다.")
+        
+        with stat_col2:
+            st.markdown("#### 🔬 머리감는 시간대 vs 구매 의향")
+            # Chi-Square Test: 머리감는시간과 구매의향의 독립성 검정
+            contingency_table = pd.crosstab(df['머리감는시간'], df['Q8'])
+            
+            if contingency_table.shape[0] >= 2 and contingency_table.shape[1] >= 2:
+                chi2, p_value_chi, dof, expected = stats.chi2_contingency(contingency_table)
+                
+                significance_chi = "✅ 유의미함" if p_value_chi < 0.05 else "❌ 유의미하지 않음"
+                color_chi = "#2ecc71" if p_value_chi < 0.05 else "#e74c3c"
+                
+                st.markdown(f"""
+                <div style="background: #f8f9fa; padding: 1.2rem; border-radius: 0.8rem; border: 2px solid {color_chi};">
+                    <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Chi-Square Test 결과</p>
+                    <table style="width: 100%; font-size: 0.95rem;">
+                        <tr><td>Chi-Square 통계량</td><td style="text-align: right;">{chi2:.3f}</td></tr>
+                        <tr><td>자유도 (df)</td><td style="text-align: right;">{dof}</td></tr>
+                        <tr><td>p-value</td><td style="text-align: right;"><b style="color: {color_chi};">{p_value_chi:.4f}</b></td></tr>
+                        <tr><td>결론</td><td style="text-align: right;"><b style="color: {color_chi};">{significance_chi}</b></td></tr>
+                    </table>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.info("데이터가 충분하지 않습니다.")
+        
+        # 통계 검정 해석 박스
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); 
+                    padding: 1.2rem 1.5rem; border-radius: 0.8rem; margin-top: 1rem; border: 2px solid #4CAF50;">
+            <p style="font-weight: 800; color: #2E7D32; margin: 0 0 0.5rem 0;">📌 해석 가이드</p>
+            <p style="color: #1a1a2e; font-size: 0.95rem; margin: 0; line-height: 1.6;">
+                • <b>T-Test</b>: 두 그룹의 평균 차이가 통계적으로 유의미한지 검정 (연속형 변수)<br>
+                • <b>Chi-Square Test</b>: 두 범주형 변수 간의 연관성이 있는지 검정<br>
+                • <b>p-value < 0.05</b>: "이 차이가 우연히 발생할 확률이 5% 미만" → 실제 의미 있는 차이
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # ============================================================
+        # 추가 분석 2: 고객 세그멘테이션 (K-Means Clustering)
+        # ============================================================
+        st.markdown("---")
+        st.markdown("### 🎯 고객 세그멘테이션 (K-Means Clustering)")
+        st.markdown("""
+        <div class="insight-box">
+        <strong>💡 고객 세그멘테이션이란?</strong><br>
+        비슷한 특성을 가진 고객들을 그룹으로 묶어 <strong>핵심 타겟 고객 프로필</strong>을 도출합니다.<br>
+        K-Means 알고리즘을 사용하여 자동으로 고객 군집을 형성합니다.
+        </div>
+        """, unsafe_allow_html=True)
+        
+        from sklearn.cluster import KMeans
+        from sklearn.preprocessing import StandardScaler
+        
+        # 클러스터링용 데이터 준비
+        cluster_df = df.copy()
+        cluster_df['성별_encoded'] = (cluster_df['성별'] == '남성').astype(int)
+        cluster_df['연령대_encoded'] = cluster_df['연령대'].map({'10대': 1, '20대': 2, '30대': 3, '40대': 4, '50대 이상': 5})
+        cluster_df['하루2번_encoded'] = cluster_df['하루2번샴푸'].astype(int)
+        
+        # 클러스터링에 사용할 특성
+        cluster_features = ['성별_encoded', '연령대_encoded', 'Q7_score', '하루2번_encoded', '구매의향']
+        cluster_data = cluster_df[cluster_features].dropna()
+        
+        if len(cluster_data) >= 30:
+            # 스케일링
+            scaler = StandardScaler()
+            scaled_data = scaler.fit_transform(cluster_data)
+            
+            # K-Means 클러스터링 (3개 그룹)
+            kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+            cluster_data['Cluster'] = kmeans.fit_predict(scaled_data)
+            
+            # 각 클러스터별 특성 분석
+            cluster_summary = cluster_data.groupby('Cluster').agg({
+                '성별_encoded': 'mean',
+                '연령대_encoded': 'mean',
+                'Q7_score': 'mean',
+                '하루2번_encoded': 'mean',
+                '구매의향': ['mean', 'count']
+            }).round(2)
+            
+            cluster_summary.columns = ['남성비율', '평균연령대', '두피변화체감도', '하루2번비율', '구매의향률', '인원수']
+            cluster_summary = cluster_summary.sort_values('구매의향률', ascending=False)
+            
+            # 클러스터 시각화
+            cluster_col1, cluster_col2 = st.columns([1.2, 1])
+            
+            with cluster_col1:
+                # 클러스터별 구매의향 비교 차트
+                fig_cluster = go.Figure()
+                
+                colors_cluster = ['#2ecc71', '#3498db', '#e74c3c']
+                labels_cluster = ['핵심 타겟', '잠재 타겟', '비타겟']
+                
+                for idx, (cluster_idx, row) in enumerate(cluster_summary.iterrows()):
+                    fig_cluster.add_trace(go.Bar(
+                        name=f'{labels_cluster[idx]} (n={int(row["인원수"])})',
+                        x=[labels_cluster[idx]],
+                        y=[row['구매의향률'] * 100],
+                        marker_color=colors_cluster[idx],
+                        text=f"{row['구매의향률']*100:.1f}%",
+                        textposition='outside',
+                        textfont=dict(size=14, family=plotly_font)
+                    ))
+                
+                fig_cluster.update_layout(
+                    font=dict(family=plotly_font, size=13),
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    yaxis_title="구매 의향률 (%)",
+                    showlegend=False,
+                    height=350,
+                    margin=dict(l=60, r=40, t=40, b=60),
+                    yaxis=dict(range=[0, 110])
+                )
+                st.plotly_chart(fig_cluster, use_container_width=True)
+            
+            with cluster_col2:
+                st.markdown("#### 📋 세그먼트별 프로필")
+                
+                for idx, (cluster_idx, row) in enumerate(cluster_summary.iterrows()):
+                    gender_text = "남성 중심" if row['남성비율'] > 0.6 else ("여성 중심" if row['남성비율'] < 0.4 else "남녀 혼합")
+                    age_text = f"{int(row['평균연령대'])}0대" if row['평균연령대'] < 5 else "50대 이상"
+                    shampoo_text = "하루 2번" if row['하루2번비율'] > 0.5 else "하루 1번"
+                    
+                    border_color = colors_cluster[idx]
+                    
+                    st.markdown(f"""
+                    <div style="background: white; padding: 0.8rem 1rem; border-radius: 0.5rem; 
+                                border-left: 5px solid {border_color}; margin-bottom: 0.8rem;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <p style="font-weight: 800; color: {border_color}; margin: 0 0 0.3rem 0; font-size: 1rem;">
+                            {labels_cluster[idx]} ({int(row['인원수'])}명)
+                        </p>
+                        <p style="font-size: 0.85rem; color: #333; margin: 0; line-height: 1.5;">
+                            {gender_text} · {age_text} · {shampoo_text}<br>
+                            두피변화 체감: {row['두피변화체감도']:.1f}점 · 
+                            <b style="color: {border_color};">구매의향 {row['구매의향률']*100:.0f}%</b>
+                        </p>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            # 핵심 타겟 인사이트
+            top_cluster = cluster_summary.iloc[0]
+            gender_insight = "남성" if top_cluster['남성비율'] > 0.6 else ("여성" if top_cluster['남성비율'] < 0.4 else "남녀 모두")
+            age_insight = f"{int(top_cluster['평균연령대'])}0대" if top_cluster['평균연령대'] < 5 else "50대 이상"
+            
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                        padding: 1.5rem 2rem; border-radius: 1rem; margin-top: 1rem; color: white;">
+                <p style="font-weight: 800; font-size: 1.1rem; margin: 0 0 0.5rem 0;">🎯 핵심 타겟 고객 프로필</p>
+                <p style="font-size: 1rem; margin: 0; line-height: 1.7;">
+                    <b>{gender_insight}</b> · <b>{age_insight}</b> · 
+                    두피 변화 체감도 <b>{top_cluster['두피변화체감도']:.1f}점</b> · 
+                    <b>{'하루 2번 샴푸' if top_cluster['하루2번비율'] > 0.5 else '하루 1번 샴푸'}</b><br>
+                    → 이 그룹의 구매 의향률: <b style="font-size: 1.2rem;">{top_cluster['구매의향률']*100:.0f}%</b>
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.warning("⚠️ 클러스터링을 위해 최소 30명 이상의 데이터가 필요합니다.")
+        
     else:
         st.warning("⚠️ 신뢰성 있는 분석을 위해 최소 30명 이상의 데이터가 필요합니다. 필터를 조정해주세요.")
 

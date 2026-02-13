@@ -1348,7 +1348,6 @@ with tab4:
                     padding: 2rem; border-radius: 1rem; color: white; margin-bottom: 1rem;">
             <h3 style="color: #f39c12;">🌙 나이트 샴푸 (제비꽃)</h3>
             <p><strong>컨셉:</strong> 노폐물 제거 + 두피 진정 + 수면·진정 + 탈모 완화 (남성적인 머스크향)</p>
-            <p style="font-size: 0.9em; opacity: 0.95;">과세정 리스크 최소화 — 하루 두 번 샴푸하는 남성의 과도한 세정 탈모 걱정 해결</p>
             <ul>
                 <li><strong>멘톨·살리실릭애씨드 Free</strong> — 자극 최소화, 저녁 각성 방지 (카페인으로 대체)</li>
                 <li><strong>제비꽃:</strong> 두피·염증 진정, 동량 미녹시딜 대비 높은 탈모 완화 효과</li>

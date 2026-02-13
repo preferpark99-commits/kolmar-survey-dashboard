@@ -1340,6 +1340,12 @@ with tab2:
 with tab4:
     st.markdown("### 🌙☀️ 데이&나이트 듀얼 샴푸 제품 소개")
     
+    # 데이&나이트 듀얼 샴푸 제품 이미지
+    product_img_path = os.path.join(font_dir, "제품소개.png")
+    if os.path.exists(product_img_path):
+        st.image(product_img_path, use_container_width=True)
+    st.markdown("---")
+    
     col1, col2 = st.columns(2)
     
     with col1:

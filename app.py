@@ -1346,12 +1346,14 @@ with tab4:
         st.markdown("""
         <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); 
                     padding: 2rem; border-radius: 1rem; color: white; margin-bottom: 1rem;">
-            <h3 style="color: #f39c12;">🌙 나이트 샴푸</h3>
-            <p><strong>컨셉:</strong> 세정력 + 보습 + 탈모 완화</p>
+            <h3 style="color: #f39c12;">🌙 나이트 샴푸 (제비꽃)</h3>
+            <p><strong>컨셉:</strong> 노폐물 제거 + 두피 진정 + 수면·진정 + 탈모 완화 (남성적인 머스크향)</p>
+            <p style="font-size: 0.9em; opacity: 0.95;">과세정 리스크 최소화 — 하루 두 번 샴푸하는 남성의 과도한 세정 탈모 걱정 해결</p>
             <ul>
-                <li>세정력 + 멘톨/살리실산 유효성분</li>
-                <li>계면활성제 (sulfate계)</li>
-                <li>보습 (판테놀, 오일 등)</li>
+                <li><strong>멘톨·살리실릭애씨드 Free</strong> — 자극 최소화, 저녁 각성 방지 (카페인으로 대체)</li>
+                <li><strong>제비꽃:</strong> 두피·염증 진정, 동량 미녹시딜 대비 높은 탈모 완화 효과</li>
+                <li><strong>카페인:</strong> 탈모 증상 완화 유효성분</li>
+                <li><strong>Sodium C14-16 olefin sulfonate:</strong> sulfate계 대체 강세정 계면활성제</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
@@ -1370,12 +1372,13 @@ with tab4:
         st.markdown("""
         <div style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); 
                     padding: 2rem; border-radius: 1rem; color: #333; margin-bottom: 1rem;">
-            <h3 style="color: #e74c3c;">☀️ 모닝 샴푸</h3>
-            <p><strong>컨셉:</strong> 저자극 + 가볍게 유분기 제거</p>
+            <h3 style="color: #e74c3c;">☀️ 모닝 샴푸 (우유 펩타이드)</h3>
+            <p><strong>컨셉:</strong> 예민 두피 케어 — 순한 성분·순한 세정제 조합, 無 향 (저자극 두피 케어)</p>
             <ul>
-                <li>컨디셔닝제</li>
-                <li>천연 계면활성제</li>
-                <li>저자극 포뮬러</li>
+                <li><strong>멘톨·살리실릭애씨드 Free</strong> — 자극 최소화</li>
+                <li><strong>우유 펩타이드:</strong> 머릿결 개선, 모발 케라틴 흡착</li>
+                <li><strong>카페인:</strong> 탈모 증상 완화 유효성분</li>
+                <li><strong>소듐코코일이세치오네이트:</strong> 천연 유래 계면활성제, 순하고 촉촉한 세정력</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
